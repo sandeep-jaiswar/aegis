@@ -24,10 +24,12 @@ struct refcount {
     }
 
     [[nodiscard]] bool decrement() noexcept {
+        // Only decrement if count > 0
         if (count > 0) {
             --count;
+            return count == 0; // Return true if this was the last reference
         }
-        return count == 0;
+        return false; // Count was already 0, don't deallocate
     }
 
     [[nodiscard]] uint32_t get() const noexcept {
@@ -77,6 +79,8 @@ template <typename T>
 class shared_data {
   public:
     // Create new shared data with allocator
+    // Note: T must be a POD-like type or have a trivial copy assignment operator
+    // Complex types with non-trivial constructors should use a different pattern
     static shared_data create(T data, memory::allocator* alloc) noexcept {
         if (alloc == nullptr) {
             return shared_data(); // Return null shared_data
@@ -91,7 +95,7 @@ class shared_data {
         auto* block = static_cast<shared_block<T>*>(mem);
         // Initialize refcount
         block->refs = refcount{};
-        // Copy data using assignment (works for POD and simple types)
+        // Copy data using assignment (requires T to be copy-assignable)
         block->data = data;
         return shared_data(block, alloc);
     }

@@ -128,6 +128,7 @@ void demo_structural_sharing() noexcept {
     // Create shared config data
     config_data cfg{};
     strncpy(cfg.name, "MyApp", sizeof(cfg.name) - 1);
+    cfg.name[sizeof(cfg.name) - 1] = '\0'; // Ensure null termination
     cfg.value = 42;
 
     shared_data<config_data> shared_config = shared_data<config_data>::create(cfg, &alloc);

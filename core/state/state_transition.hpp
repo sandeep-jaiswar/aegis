@@ -125,9 +125,11 @@ class tracked_transition {
     }
 
     // Apply event with full metadata tracking
+    // Note: This is not const because it increments next_version_
     [[nodiscard]] tracked_snapshot<StateData>
-    apply(const tracked_snapshot<StateData>& current_state, const state_event<EventData>& event,
-          transition_result& result) const noexcept {
+    apply(const tracked_snapshot<StateData>& current_state,
+          const state_event<EventData>& event,
+          transition_result& result) noexcept {
         // Apply transition
         state_snapshot<StateData> new_snapshot =
             transition_fn_(current_state.snapshot(), event, result);
@@ -151,7 +153,7 @@ class tracked_transition {
 
   private:
     transition_fn<StateData, EventData> transition_fn_;
-    mutable state_version next_version_;
+    state_version next_version_; // Not mutable - apply() is non-const
 };
 
 // Helper to create a simple state transition from a lambda or function
