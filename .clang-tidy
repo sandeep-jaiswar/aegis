@@ -34,6 +34,7 @@ Checks: >
   -misc-non-private-member-variables-in-classes,
   -misc-use-anonymous-namespace,
   -misc-include-cleaner,
+  -misc-no-recursion,
   modernize-*,
   -modernize-use-trailing-return-type,
   -modernize-avoid-c-arrays,
