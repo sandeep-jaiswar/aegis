@@ -4,6 +4,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <new> // For placement new
 
 namespace aegis::core::state {
 
@@ -62,15 +63,18 @@ class event_stream {
         static_assert(sizeof(EventData) >= 1, "EventData must be a complete type");
     }
 
-    ~event_stream() noexcept = default;
+    ~event_stream() noexcept {
+        // Destroy all constructed events
+        clear();
+    }
 
     // Disable copy - event stream owns its events
     event_stream(const event_stream&) = delete;
     event_stream& operator=(const event_stream&) = delete;
 
-    // Allow move
-    event_stream(event_stream&&) noexcept = default;
-    event_stream& operator=(event_stream&&) noexcept = default;
+    // Disable move - would need to implement proper move semantics
+    event_stream(event_stream&&) = delete;
+    event_stream& operator=(event_stream&&) = delete;
 
     // Add event to stream with automatic sequencing
     // Returns the assigned sequence number on success
@@ -86,8 +90,8 @@ class event_stream {
         meta.sequence = next_sequence_;
         meta.event_type = 0; // Application can set this
 
-        // Store event
-        events_ptr()[events_count_] = state_event<EventData>(meta, data);
+        // Store event using placement new
+        new (&events_ptr()[events_count_]) state_event<EventData>(meta, data);
         events_count_++;
 
         // Update statistics
@@ -121,8 +125,8 @@ class event_stream {
             }
         }
 
-        // Store event
-        events_ptr()[events_count_] = event;
+        // Store event using placement new
+        new (&events_ptr()[events_count_]) state_event<EventData>(event);
         events_count_++;
 
         // Update statistics
@@ -227,6 +231,11 @@ class event_stream {
 
     // Clear all events (reset stream)
     void clear() noexcept {
+        // Destroy constructed events
+        for (size_t i = 0; i < events_count_; ++i) {
+            events_ptr()[i].~state_event<EventData>();
+        }
+
         events_count_ = 0;
         stats_.current_events = 0;
         stats_.bytes_allocated = 0;
@@ -235,6 +244,11 @@ class event_stream {
 
     // Reset stream completely (including statistics and sequence)
     void reset() noexcept {
+        // Destroy constructed events
+        for (size_t i = 0; i < events_count_; ++i) {
+            events_ptr()[i].~state_event<EventData>();
+        }
+
         events_count_ = 0;
         next_sequence_ = config_.initial_sequence;
         stats_ = event_stream_stats{};
