@@ -136,7 +136,7 @@ float ratio = stats.sharing_ratio(); // Percentage of shared data
 - **Explicit reference counting**: No hidden behavior
 - **Copy-on-write**: Explicit `clone()` operation
 - **Bounded lifetime**: Tied to allocator lifetime
-- **No std::shared_ptr**: Custom implementation for deterministic behavior
+- **Custom implementation**: Deterministic behavior with explicit ownership semantics
 - **Statistics**: Track sharing ratios and memory usage
 
 ## Design Principles

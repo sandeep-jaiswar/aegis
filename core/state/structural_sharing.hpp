@@ -74,7 +74,7 @@ struct shared_block {
 };
 
 // Shared pointer with explicit copy-on-write semantics
-// Unlike std::shared_ptr, this has explicit, bounded behavior
+// This class provides explicit, bounded sharing and ownership semantics
 template <typename T>
 class shared_data {
   public:
