@@ -2,14 +2,6 @@
 
 namespace aegis::core::frame {
 
-// Helper structure to track GPU buffer state
-// Used to minimize CPU↔GPU synchronization
-struct gpu_buffer_state {
-    uint32_t buffer_id{0};
-    bool dirty{false};        // Needs GPU sync
-    uint32_t last_update{0};  // Frame number of last update
-};
-
 // Helper: Get buffer ID for node
 // In a real implementation, this would map node properties to GPU buffers
 // For now, we use a simple hash of node ID
@@ -182,6 +174,10 @@ gpu_command_result gpu_command_buffer::translate_diff(const diff_change* changes
             current_pipeline = pipeline_id;
 
             // Begin new batch
+            // Note: Batch size is set to 1 as a placeholder. In a production implementation,
+            // this would be calculated based on the number of consecutive nodes with the
+            // same pipeline state. The current implementation generates one batch per
+            // pipeline switch, which demonstrates the batching structure.
             const gpu_command begin_batch = gpu_command::create_begin_batch(1);
             const gpu_command_result batch_result = add_command(begin_batch);
             if (batch_result != gpu_command_result::success) {
