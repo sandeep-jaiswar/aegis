@@ -20,6 +20,7 @@ enum class frame_phase : uint8_t {
 // Frame statistics for deterministic performance tracking
 struct frame_stats {
     uint64_t frame_number{0};
+    uint64_t frame_start_timestamp_ns{0}; // Timestamp when frame started
     uint64_t begin_time_ns{0};
     uint64_t apply_events_time_ns{0};
     uint64_t update_state_time_ns{0};
@@ -107,6 +108,7 @@ class frame_context {
     void reset() noexcept {
         current_phase = frame_phase::idle;
         stats = frame_stats{};
+        phase_start_time_ns = 0;
     }
 
   private:

@@ -129,6 +129,7 @@ The `frame_stats` structure provides detailed timing and memory information:
 ```cpp
 struct frame_stats {
     uint64_t frame_number;           // Current frame number
+    uint64_t frame_start_timestamp_ns; // Timestamp when frame started
     uint64_t begin_time_ns;          // Time spent in begin_frame
     uint64_t apply_events_time_ns;   // Time spent in apply_events
     uint64_t update_state_time_ns;   // Time spent in update_state

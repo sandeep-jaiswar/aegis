@@ -55,7 +55,8 @@ void frame_context::update_phase_timing(uint64_t current_time_ns) noexcept {
             break;
         case frame_phase::end:
             stats.end_time_ns = phase_duration;
-            stats.total_time_ns = current_time_ns - phase_start_time_ns;
+            // Calculate total frame time from frame start to now
+            stats.total_time_ns = current_time_ns - stats.frame_start_timestamp_ns;
             break;
         case frame_phase::idle:
             break;
@@ -70,6 +71,7 @@ frame_result frame_context::begin_frame(uint64_t timestamp_ns) noexcept {
     current_phase = frame_phase::begin;
     phase_start_time_ns = timestamp_ns;
     stats.frame_number++;
+    stats.frame_start_timestamp_ns = timestamp_ns; // Store frame start time
 
     return frame_result::success;
 }
@@ -79,9 +81,9 @@ frame_result frame_context::apply_events() noexcept {
         return frame_result::invalid_phase_transition;
     }
 
-    // Get current timestamp for phase timing
-    // Note: In a real implementation, this would use a platform-specific
-    // high-resolution timer provided by the runtime layer
+    // NOTE: Placeholder timing - In production, this would use a platform-specific
+    // high-resolution timer provided by the runtime layer (e.g., std::chrono or OS API)
+    // The +1 ensures phases have non-zero duration for testing
     const uint64_t current_time = phase_start_time_ns + 1;
 
     update_phase_timing(current_time);
@@ -96,6 +98,7 @@ frame_result frame_context::update_state() noexcept {
         return frame_result::invalid_phase_transition;
     }
 
+    // NOTE: Placeholder timing - see apply_events() for explanation
     const uint64_t current_time = phase_start_time_ns + 1;
     update_phase_timing(current_time);
     current_phase = frame_phase::update_state;
@@ -109,6 +112,7 @@ frame_result frame_context::compute_layout() noexcept {
         return frame_result::invalid_phase_transition;
     }
 
+    // NOTE: Placeholder timing - see apply_events() for explanation
     const uint64_t current_time = phase_start_time_ns + 1;
     update_phase_timing(current_time);
     current_phase = frame_phase::compute_layout;
@@ -122,6 +126,7 @@ frame_result frame_context::build_scene() noexcept {
         return frame_result::invalid_phase_transition;
     }
 
+    // NOTE: Placeholder timing - see apply_events() for explanation
     const uint64_t current_time = phase_start_time_ns + 1;
     update_phase_timing(current_time);
     current_phase = frame_phase::build_scene;
@@ -135,6 +140,7 @@ frame_result frame_context::diff_scene() noexcept {
         return frame_result::invalid_phase_transition;
     }
 
+    // NOTE: Placeholder timing - see apply_events() for explanation
     const uint64_t current_time = phase_start_time_ns + 1;
     update_phase_timing(current_time);
     current_phase = frame_phase::diff_scene;
@@ -148,6 +154,7 @@ frame_result frame_context::end_frame() noexcept {
         return frame_result::invalid_phase_transition;
     }
 
+    // NOTE: Placeholder timing - see apply_events() for explanation
     const uint64_t current_time = phase_start_time_ns + 1;
     update_phase_timing(current_time);
     current_phase = frame_phase::end;
