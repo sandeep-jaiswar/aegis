@@ -88,7 +88,8 @@ enum class scene_result : uint8_t {
     node_limit_exceeded = 3,
     child_limit_exceeded = 4,
     graph_frozen = 5, // Cannot modify frozen graph
-    parent_not_found = 6
+    parent_not_found = 6,
+    non_contiguous_children = 7 // Children must be added contiguously per parent
 };
 
 // Retained-mode scene graph
@@ -242,7 +243,7 @@ class scene_graph {
                 // This happens when children are added to different parents interleaved
                 // To fix: build scene graph in a single pass per parent, or call
                 // clear() between frames
-                return scene_result::child_limit_exceeded; // Reuse error code
+                return scene_result::non_contiguous_children;
             }
         }
 

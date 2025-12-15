@@ -1,6 +1,7 @@
 #include "core/frame/scene_graph.hpp"
 #include "core/memory/arena_allocator.hpp"
 
+#include <cinttypes>
 #include <cstdio>
 
 using namespace aegis::core::frame;
@@ -46,7 +47,7 @@ int main() {
         .color = 0xFFFFFFFF // White background
     };
     node_id container = graph.create_node(node_type::container, container_props);
-    printf("   Created container node: ID=%lu\n", container);
+    printf("   Created container node: ID=%" PRIu64 "\n", container);
 
     // Create rectangle
     node_properties rect_props{
@@ -57,7 +58,7 @@ int main() {
         .color = 0xFF0000FF // Red
     };
     node_id rect = graph.create_node(node_type::rectangle, rect_props);
-    printf("   Created rectangle node: ID=%lu\n", rect);
+    printf("   Created rectangle node: ID=%" PRIu64 "\n", rect);
 
     // Create text node
     node_properties text_props{
@@ -68,7 +69,7 @@ int main() {
         .color = 0x000000FF // Black
     };
     node_id text = graph.create_node(node_type::text, text_props);
-    printf("   Created text node: ID=%lu\n", text);
+    printf("   Created text node: ID=%" PRIu64 "\n", text);
 
     printf("   Total nodes: %u\n\n", graph.count());
 
@@ -123,7 +124,7 @@ int main() {
     printf("6. Traversing frozen scene graph\n");
     const scene_node* root = graph.get_root();
     if (root != nullptr) {
-        printf("   Root node: ID=%lu, children=%u\n", root->id, root->child_count);
+        printf("   Root node: ID=%" PRIu64 ", children=%u\n", root->id, root->child_count);
 
         // Get root's children
         uint32_t child_count = 0;
@@ -131,7 +132,7 @@ int main() {
         for (uint32_t i = 0; i < child_count; ++i) {
             const scene_node* child = graph.get_node(root_children[i]);
             if (child != nullptr) {
-                printf("     Child %u: ID=%lu, type=%u, pos=(%.1f, %.1f), "
+                printf("     Child %u: ID=%" PRIu64 ", type=%u, pos=(%.1f, %.1f), "
                        "size=(%.1fx%.1f)\n",
                        i, child->id, static_cast<uint32_t>(child->type), child->props.x,
                        child->props.y, child->props.width, child->props.height);
@@ -142,7 +143,7 @@ int main() {
                 for (uint32_t j = 0; j < sub_child_count; ++j) {
                     const scene_node* sub_child = graph.get_node(sub_children[j]);
                     if (sub_child != nullptr) {
-                        printf("       Subchild %u: ID=%lu, type=%u, pos=(%.1f, %.1f)\n", j,
+                        printf("       Subchild %u: ID=%" PRIu64 ", type=%u, pos=(%.1f, %.1f)\n", j,
                                sub_child->id, static_cast<uint32_t>(sub_child->type),
                                sub_child->props.x, sub_child->props.y);
                     }
@@ -168,19 +169,19 @@ int main() {
         .color = 0x00FF00FF // Green
     };
     node_id new_rect = graph.create_node(node_type::rectangle, new_rect_props);
-    printf("   Created new rectangle: ID=%lu\n", new_rect);
+    printf("   Created new rectangle: ID=%" PRIu64 "\n", new_rect);
     printf("   Notice: Node ID continues from previous frame (stable IDs)\n");
     printf("   Previous node IDs are still valid:\n");
 
     // Verify old node IDs are still valid
     const scene_node* old_container = graph.get_node(container);
     if (old_container != nullptr) {
-        printf("     Container from frame 1: ID=%lu still valid ✓\n", old_container->id);
+        printf("     Container from frame 1: ID=%" PRIu64 " still valid ✓\n", old_container->id);
     }
 
     const scene_node* old_rect = graph.get_node(rect);
     if (old_rect != nullptr) {
-        printf("     Rectangle from frame 1: ID=%lu still valid ✓\n", old_rect->id);
+        printf("     Rectangle from frame 1: ID=%" PRIu64 " still valid ✓\n", old_rect->id);
     }
 
     printf("\n");
