@@ -2,6 +2,7 @@
 
 #include "module_format.hpp"
 
+#include <cstddef>
 #include <cstring>
 
 namespace aegis::core::module {
@@ -105,7 +106,7 @@ class module_builder {
         entry.hash = compute_hash(asset_data, asset_size);
 
         // Store asset data
-        if (assets_data_offset + asset_size > sizeof(temp_assets_buffer)) {
+        if (assets_data_offset + asset_size > TEMP_ASSETS_BUFFER_SIZE) {
             return false; // Not enough space for assets
         }
 
@@ -214,7 +215,9 @@ class module_builder {
   private:
     static constexpr size_t MAX_SECTIONS = 16;
     static constexpr size_t MAX_ASSETS = 64;
-    static constexpr size_t MAX_ASSETS_DATA_SIZE = 1024 * 1024; // 1 MB
+    // Note: temp_assets_buffer is 16KB for efficiency during build phase
+    // Larger assets should be written to final buffer directly in future versions
+    static constexpr size_t TEMP_ASSETS_BUFFER_SIZE = 16384; // 16KB
 
     uint8_t* buffer;
     size_t buffer_size;
@@ -229,7 +232,7 @@ class module_builder {
     uint8_t* assets_data; // Will point to temp buffer in caller's space
     size_t assets_count{0};
     size_t assets_data_offset{0};
-    uint8_t temp_assets_buffer[16384]{}; // 16KB for assets during build
+    uint8_t temp_assets_buffer[TEMP_ASSETS_BUFFER_SIZE]{}; // Temporary storage during build
 
     // Helper to safely copy strings
     static void copy_string(char* dest, const char* src, size_t dest_size) noexcept {

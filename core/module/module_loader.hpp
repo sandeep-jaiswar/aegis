@@ -2,6 +2,7 @@
 
 #include "module_format.hpp"
 
+#include <cstddef>
 #include <cstring>
 
 namespace aegis::core::module {
@@ -75,9 +76,7 @@ class module_loader {
 
         // Check capabilities
         const capability_flags required_caps = static_cast<capability_flags>(header_ptr->capabilities);
-        const capability_flags missing_caps = static_cast<capability_flags>(
-            static_cast<uint64_t>(required_caps) & ~static_cast<uint64_t>(available_caps)
-        );
+        const capability_flags missing_caps = required_caps & ~available_caps;
         
         if (static_cast<uint64_t>(missing_caps) != 0) {
             return module_load_result::insufficient_capabilities;

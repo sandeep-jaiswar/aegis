@@ -47,6 +47,10 @@ inline constexpr capability_flags operator&(capability_flags a, capability_flags
     return static_cast<capability_flags>(static_cast<uint64_t>(a) & static_cast<uint64_t>(b));
 }
 
+inline constexpr capability_flags operator~(capability_flags a) noexcept {
+    return static_cast<capability_flags>(~static_cast<uint64_t>(a));
+}
+
 inline constexpr bool has_capability(capability_flags flags, capability_flags cap) noexcept {
     return (static_cast<uint64_t>(flags) & static_cast<uint64_t>(cap)) != 0;
 }
