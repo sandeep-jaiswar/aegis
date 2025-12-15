@@ -36,7 +36,7 @@ class module_loader {
 
         // Read and validate header
         const module_header* header_ptr = reinterpret_cast<const module_header*>(data);
-        
+
         // Validate magic number
         if (header_ptr->magic != MODULE_MAGIC) {
             return module_load_result::invalid_magic;
@@ -75,9 +75,10 @@ class module_loader {
         }
 
         // Check capabilities
-        const capability_flags required_caps = static_cast<capability_flags>(header_ptr->capabilities);
+        const capability_flags required_caps =
+            static_cast<capability_flags>(header_ptr->capabilities);
         const capability_flags missing_caps = required_caps & ~available_caps;
-        
+
         if (static_cast<uint64_t>(missing_caps) != 0) {
             return module_load_result::insufficient_capabilities;
         }
@@ -85,7 +86,7 @@ class module_loader {
         // Validate section headers
         const size_t sections_offset = sizeof(module_header);
         const size_t sections_size = sizeof(section_header) * header_ptr->section_count;
-        
+
         if (sections_offset + sections_size > header_ptr->total_size) {
             return module_load_result::corrupt_data;
         }
@@ -224,23 +225,22 @@ class module_loader {
     [[nodiscard]] const asset_entry* find_asset(const char* asset_name) const noexcept {
         size_t assets_size = 0;
         const uint8_t* assets_data = get_assets(&assets_size);
-        
+
         if (assets_data == nullptr || assets_size < sizeof(asset_entry)) {
             return nullptr;
         }
 
         // Calculate number of asset entries
         const size_t num_entries = assets_size / sizeof(asset_entry);
-        
+
         for (size_t i = 0; i < num_entries; ++i) {
-            const asset_entry* entry = reinterpret_cast<const asset_entry*>(
-                assets_data + i * sizeof(asset_entry)
-            );
-            
+            const asset_entry* entry =
+                reinterpret_cast<const asset_entry*>(assets_data + i * sizeof(asset_entry));
+
             if (strings_equal(entry->name, asset_name, sizeof(entry->name))) {
                 return entry;
             }
-            
+
             // Stop if we've gone past the entries into the data section
             if ((i + 1) * sizeof(asset_entry) > assets_size) {
                 break;
@@ -258,7 +258,7 @@ class module_loader {
 
         size_t assets_size = 0;
         const uint8_t* assets_section = get_assets(&assets_size);
-        
+
         if (assets_section == nullptr) {
             return nullptr;
         }
