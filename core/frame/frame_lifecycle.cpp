@@ -159,6 +159,24 @@ frame_result frame_context::end_frame() noexcept {
     update_phase_timing(current_time);
     current_phase = frame_phase::end;
 
+    // Capture frame allocator statistics before reset
+    if (frame_alloc != nullptr) {
+        stats.frame_allocations = frame_alloc->get_allocation_count();
+        stats.frame_deallocations = frame_alloc->get_deallocation_count();
+
+        // Update memory statistics from frame allocator
+        stats.bytes_allocated += frame_alloc->bytes_allocated();
+        stats.bytes_freed += frame_alloc->bytes_freed();
+
+        const size_t current_used = stats.bytes_allocated - stats.bytes_freed;
+        if (current_used > stats.peak_memory_used) {
+            stats.peak_memory_used = current_used;
+        }
+
+        // Reset frame allocator - O(1) operation that invalidates all frame allocations
+        frame_alloc->reset();
+    }
+
     // Check time budget
     if (!is_within_budget()) {
         return frame_result::exceeded_time_budget;
