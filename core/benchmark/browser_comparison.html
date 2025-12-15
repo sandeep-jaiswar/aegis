@@ -194,9 +194,9 @@
             // Simulate frame allocations (similar to Aegis frame_allocator)
             performAllocations() {
                 for (let i = 0; i < CONFIG.allocationsPerFrame; i++) {
-                    const size = CONFIG.allocationSizes[
-                        Math.floor(Math.random() * CONFIG.allocationSizes.length)
-                    ];
+                    // Use deterministic pattern matching C++ implementation
+                    const sizeIdx = i % CONFIG.allocationSizes.length;
+                    const size = CONFIG.allocationSizes[sizeIdx];
                     // Allocate array to simulate memory allocation
                     const buffer = new ArrayBuffer(size);
                     this.allocations.push(buffer);
@@ -206,8 +206,8 @@
             // Simulate operations (layout, diff, etc.)
             performOperations() {
                 for (let i = 0; i < CONFIG.operationsPerFrame; i++) {
-                    // Simulate computational work
-                    const result = Math.sqrt(i) * Math.sin(i) + Math.cos(i);
+                    // Simple arithmetic matching C++ implementation
+                    const result = i * i + i;
                     this.operations.push(result);
                 }
             }

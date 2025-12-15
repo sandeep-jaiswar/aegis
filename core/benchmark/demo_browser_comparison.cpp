@@ -19,12 +19,13 @@ void print_percentiles(const benchmark::percentile_metrics& metrics) {
     printf("  Max:    %10llu ns\n", static_cast<unsigned long long>(metrics.max_ns));
     printf("  Mean:   %10llu ns\n", static_cast<unsigned long long>(metrics.mean_ns));
 
-    // Calculate variance
-    // For simplicity, approximate variance from range
+    // Display variance estimate
+    // Note: True variance would require storing all timing samples
+    // This approximation assumes roughly uniform distribution
     const uint64_t range = metrics.max_ns - metrics.min_ns;
-    const uint64_t approx_variance = (range * range) / 12; // Uniform distribution approximation
+    const uint64_t variance_estimate = (range * range) / 12;
 
-    printf("  Est. Variance: %10llu ns²\n", static_cast<unsigned long long>(approx_variance));
+    printf("  Variance (est): %10llu ns²\n", static_cast<unsigned long long>(variance_estimate));
 }
 
 // Helper to print benchmark results

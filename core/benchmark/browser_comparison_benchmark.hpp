@@ -72,8 +72,9 @@ class browser_comparison_benchmark final : public benchmark {
         }
 
         // Perform allocations matching browser pattern
+        // Uses deterministic size selection for reproducible results
         for (size_t i = 0; i < browser_comparison_config::allocations_per_frame; ++i) {
-            // Select size using simple pattern (deterministic)
+            // Select size using modulo pattern (same as browser implementation)
             const size_t size_idx = i % browser_comparison_config::allocation_size_count;
             const size_t size = browser_comparison_config::allocation_sizes[size_idx];
 
