@@ -86,12 +86,12 @@ class pool_allocator final : public allocator {
     size_t capacity;
     size_t block_size;
     size_t block_alignment;
-    size_t block_count;
-    void* free_list_head;
-    size_t blocks_used;
-    size_t total_allocated;
-    size_t total_freed;
-    size_t peak_used;
+    size_t block_count{0};
+    void* free_list_head{nullptr};
+    size_t blocks_used{0};
+    size_t total_allocated{0};
+    size_t total_freed{0};
+    size_t peak_used{0};
 };
 
 } // namespace aegis::core::memory

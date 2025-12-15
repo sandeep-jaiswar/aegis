@@ -17,13 +17,9 @@ class arena_allocator final : public allocator {
   public:
     // Create arena with pre-allocated buffer
     // buffer must remain valid for the lifetime of the allocator
-    arena_allocator(void* buffer, size_t capacity) noexcept
-        : buffer(static_cast<uint8_t*>(buffer))
-        , capacity(capacity)
-        , offset(0)
-        , total_allocated(0)
-        , total_freed(0)
-        , peak_used(0) {
+    arena_allocator(void* buffer_ptr, size_t capacity_val) noexcept
+        : buffer(static_cast<uint8_t*>(buffer_ptr))
+        , capacity(capacity_val) {
     }
 
     ~arena_allocator() noexcept override = default;
@@ -87,10 +83,10 @@ class arena_allocator final : public allocator {
   private:
     uint8_t* buffer;
     size_t capacity;
-    size_t offset;
-    size_t total_allocated;
-    size_t total_freed;
-    size_t peak_used;
+    size_t offset{0};
+    size_t total_allocated{0};
+    size_t total_freed{0};
+    size_t peak_used{0};
 };
 
 } // namespace aegis::core::memory

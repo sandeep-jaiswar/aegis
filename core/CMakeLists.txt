@@ -8,6 +8,9 @@ file(GLOB_RECURSE CORE_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
 )
 
+# Exclude demo files from library
+list(FILTER CORE_SOURCES EXCLUDE REGEX ".*demo.*\\.cpp$")
+
 file(GLOB_RECURSE CORE_HEADERS
     "${CMAKE_CURRENT_SOURCE_DIR}/*.hpp"
 )
@@ -53,6 +56,29 @@ if(ENABLE_CLANG_TIDY)
         message(STATUS "clang-tidy enabled for aegis_core")
     else()
         message(WARNING "clang-tidy requested but not found")
+    endif()
+endif()
+
+# Optional: Build demo executable
+option(BUILD_MEMORY_DEMO "Build memory allocator demonstration" ON)
+if(BUILD_MEMORY_DEMO)
+    add_executable(memory_demo memory/demo_allocators.cpp)
+    target_link_libraries(memory_demo PRIVATE aegis_core)
+    target_compile_features(memory_demo PRIVATE cxx_std_23)
+    
+    # Compiler-specific flags for demo
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(memory_demo PRIVATE
+            -Wall
+            -Wextra
+            -Wpedantic
+            $<$<CONFIG:Release>:-O3>
+        )
+    elseif(MSVC)
+        target_compile_options(memory_demo PRIVATE
+            /W4
+            $<$<CONFIG:Release>:/O2>
+        )
     endif()
 endif()
 

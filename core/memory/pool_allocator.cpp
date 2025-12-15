@@ -7,13 +7,7 @@ pool_allocator::pool_allocator(void* buffer_ptr, size_t capacity_val, size_t blo
     : buffer(static_cast<uint8_t*>(buffer_ptr))
     , capacity(capacity_val)
     , block_size(block_size_val)
-    , block_alignment(block_alignment_val)
-    , block_count(0)
-    , free_list_head(nullptr)
-    , blocks_used(0)
-    , total_allocated(0)
-    , total_freed(0)
-    , peak_used(0) {
+    , block_alignment(block_alignment_val) {
     
     // Block size must be at least large enough to store a pointer
     if (block_size < sizeof(void*)) {
