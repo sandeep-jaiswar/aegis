@@ -151,5 +151,28 @@ if(BUILD_LAYOUT_DEMO)
     endif()
 endif()
 
+# Optional: Build scene graph demo executable
+option(BUILD_SCENE_GRAPH_DEMO "Build scene graph demonstration" ON)
+if(BUILD_SCENE_GRAPH_DEMO)
+    add_executable(scene_graph_demo frame/demo_scene_graph.cpp)
+    target_link_libraries(scene_graph_demo PRIVATE aegis_core)
+    target_compile_features(scene_graph_demo PRIVATE cxx_std_23)
+    
+    # Compiler-specific flags for demo
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(scene_graph_demo PRIVATE
+            -Wall
+            -Wextra
+            -Wpedantic
+            $<$<CONFIG:Release>:-O3>
+        )
+    elseif(MSVC)
+        target_compile_options(scene_graph_demo PRIVATE
+            /W4
+            $<$<CONFIG:Release>:/O2>
+        )
+    endif()
+endif()
+
 # Ensure no OS/runtime headers are included in core
 # This is enforced by the compile-time checks and architecture contract
