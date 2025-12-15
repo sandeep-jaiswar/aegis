@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include "core/memory/frame_allocator.hpp"
 
 namespace aegis::core::frame {
 
@@ -34,6 +35,10 @@ struct frame_stats {
     size_t bytes_allocated{0};
     size_t bytes_freed{0};
     size_t peak_memory_used{0};
+    
+    // Frame allocator statistics
+    size_t frame_allocations{0};
+    size_t frame_deallocations{0};
 };
 
 // Frame execution result
@@ -47,7 +52,12 @@ enum class frame_result : uint8_t {
 // Frame execution context - tracks frame state and ensures deterministic execution
 class frame_context {
   public:
-    frame_context() noexcept = default;
+    // Create frame context with optional frame allocator
+    // If frame_allocator is provided, it will be reset at end_frame()
+    explicit frame_context(memory::frame_allocator* frame_alloc = nullptr) noexcept
+        : frame_alloc(frame_alloc) {
+    }
+    
     ~frame_context() noexcept = default;
 
     // Disable copy and move - frame context is tied to a single execution
@@ -103,6 +113,15 @@ class frame_context {
     void track_deallocation(size_t bytes) noexcept {
         stats.bytes_freed += bytes;
     }
+    
+    // Get frame allocator (if available)
+    [[nodiscard]] memory::frame_allocator* get_frame_allocator() noexcept {
+        return frame_alloc;
+    }
+    
+    [[nodiscard]] const memory::frame_allocator* get_frame_allocator() const noexcept {
+        return frame_alloc;
+    }
 
     // Reset for next frame - ensures clean state
     void reset() noexcept {
@@ -116,6 +135,7 @@ class frame_context {
     frame_stats stats{};
     uint64_t time_budget_ns{16'666'667}; // Default: ~60 FPS (16.67ms)
     uint64_t phase_start_time_ns{0};
+    memory::frame_allocator* frame_alloc{nullptr};
 
     // Validate phase transition
     [[nodiscard]] bool is_valid_transition(frame_phase next_phase) const noexcept;
