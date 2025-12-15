@@ -392,7 +392,16 @@ class data_grid {
             return nullptr;
         }
 
-        // Linear search - could be optimized with hash map for very large grids
+        // Optimized: use row_id as direct index hint (row IDs are sequential)
+        // This gives O(1) lookup for sequentially added rows
+        if (id > 0 && id <= row_count) {
+            const auto hint_index = static_cast<uint32_t>(id - 1);
+            if (hint_index < row_count && rows[hint_index].id == id) {
+                return &rows[hint_index];
+            }
+        }
+
+        // Fallback: linear search for non-sequential IDs
         for (uint32_t i = 0; i < row_count; ++i) {
             if (rows[i].id == id) {
                 return &rows[i];
@@ -407,6 +416,15 @@ class data_grid {
             return nullptr;
         }
 
+        // Optimized: use row_id as direct index hint
+        if (id > 0 && id <= row_count) {
+            const auto hint_index = static_cast<uint32_t>(id - 1);
+            if (hint_index < row_count && rows[hint_index].id == id) {
+                return &rows[hint_index];
+            }
+        }
+
+        // Fallback: linear search
         for (uint32_t i = 0; i < row_count; ++i) {
             if (rows[i].id == id) {
                 return &rows[i];
