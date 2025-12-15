@@ -125,6 +125,28 @@ if (result != scene_result::success) {
 }
 ```
 
+**Important:** Children must be added to each parent in a single contiguous sequence. 
+You cannot interleave adding children to different parents. This ensures the child 
+array remains contiguous per parent for cache-friendly traversal.
+
+✅ Correct:
+```cpp
+// Add all children to parent A
+graph.add_child(parent_a, child1);
+graph.add_child(parent_a, child2);
+// Then add all children to parent B
+graph.add_child(parent_b, child3);
+graph.add_child(parent_b, child4);
+```
+
+❌ Incorrect:
+```cpp
+// Don't interleave different parents
+graph.add_child(parent_a, child1);
+graph.add_child(parent_b, child2);  // Error: breaks contiguity
+graph.add_child(parent_a, child3);  // This will fail!
+```
+
 ### Frame Lifecycle Integration
 
 ```cpp

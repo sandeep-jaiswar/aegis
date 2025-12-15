@@ -223,12 +223,30 @@ class scene_graph {
             return scene_result::child_limit_exceeded;
         }
 
-        // If parent has no children yet, allocate child range
+        // CRITICAL: To maintain contiguous child ranges, we can only add children
+        // to a parent if either:
+        // 1. Parent has no children yet (allocate new range)
+        // 2. We're adding immediately after the parent's existing children
+        // This ensures children[first_child_index..first_child_index+child_count]
+        // is always contiguous for each parent
+
         if (parent_node->child_count == 0) {
+            // Case 1: Parent has no children, allocate new range
             parent_node->first_child_index = child_index_count;
+        } else {
+            // Case 2: Parent already has children, verify we're adding contiguously
+            const uint32_t expected_index =
+                parent_node->first_child_index + parent_node->child_count;
+            if (expected_index != child_index_count) {
+                // Cannot add child non-contiguously
+                // This happens when children are added to different parents interleaved
+                // To fix: build scene graph in a single pass per parent, or call
+                // clear() between frames
+                return scene_result::child_limit_exceeded; // Reuse error code
+            }
         }
 
-        // Add child to parent's child list
+        // Add child to parent's child list (guaranteed contiguous)
         children[child_index_count] = child;
         child_index_count++;
         parent_node->child_count++;
