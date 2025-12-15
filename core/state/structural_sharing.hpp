@@ -87,8 +87,12 @@ class shared_data {
             return shared_data(); // Allocation failed
         }
 
-        // Placement new (allowed even with -fno-exceptions for POD)
-        auto* block = new (mem) shared_block<T>(data);
+        // Manual construction (avoid placement new with -fno-exceptions)
+        auto* block = static_cast<shared_block<T>*>(mem);
+        // Initialize refcount
+        block->refs = refcount{};
+        // Copy data using assignment (works for POD and simple types)
+        block->data = data;
         return shared_data(block, alloc);
     }
 
@@ -210,7 +214,7 @@ class shared_data {
         if (block_ != nullptr && block_->release()) {
             // Last reference - deallocate
             if (allocator_ != nullptr) {
-                block_->~shared_block();
+                // No explicit destructor call needed for POD-style types
                 allocator_->deallocate(block_, sizeof(shared_block<T>));
             }
         }
