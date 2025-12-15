@@ -71,7 +71,8 @@ static void print_usage(const char* program_name) {
 
 // Print version information
 static void print_version() {
-    printf("Aegis Shell v%d.%d.%d\n", version_major, version_minor, version_patch);
+    printf("Aegis Shell v%d.%d.%d\n", aegis::core::version_major, aegis::core::version_minor,
+           aegis::core::version_patch);
     printf("Runtime: Aegis Core\n");
 }
 
@@ -108,7 +109,8 @@ int main(int argc, char** argv) {
     }
 
     printf("=== Aegis Shell ===\n");
-    printf("Version: %d.%d.%d\n", version_major, version_minor, version_patch);
+    printf("Version: %d.%d.%d\n", aegis::core::version_major, aegis::core::version_minor,
+           aegis::core::version_patch);
     printf("Module: %s\n", config.module_path);
 
     if (config.record_path != nullptr) {
