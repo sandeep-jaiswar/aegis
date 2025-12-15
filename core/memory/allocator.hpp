@@ -43,7 +43,12 @@ class allocator {
 };
 
 // Helper to align a pointer/size to specified alignment
+// Note: alignment must be a power of 2
 [[nodiscard]] inline size_t align_up(size_t value, size_t alignment) noexcept {
+    // Overflow check: ensure value + alignment - 1 doesn't overflow
+    if (alignment == 0 || value > (static_cast<size_t>(-1) - alignment + 1)) {
+        return value;
+    }
     return (value + alignment - 1) & ~(alignment - 1);
 }
 

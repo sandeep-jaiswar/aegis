@@ -91,7 +91,6 @@ int main() {
 
     // Create frame context with frame allocator
     aegis::core::frame::frame_context ctx(&frame_alloc);
-    aegis::core::frame::frame_executor executor;
 
     // Execute first frame
     printf("Executing Frame 1...\n");
