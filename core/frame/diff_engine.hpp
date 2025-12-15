@@ -32,6 +32,7 @@ struct diff_change {
 // Diff result configuration
 struct diff_config {
     uint32_t max_changes{4096}; // Maximum number of changes to track
+    uint32_t max_nodes{1024};   // Maximum nodes to track from previous graph
 };
 
 // Diff computation result
@@ -77,12 +78,12 @@ class diff_engine {
         }
 
         // Allocate node ID tracking for previous graph
-        // Use same max_changes as upper bound for nodes we need to track
-        const size_t prev_ids_size = sizeof(node_id) * cfg.max_changes;
+        // Track all nodes from previous graph for efficient existence checks
+        const size_t prev_ids_size = sizeof(node_id) * cfg.max_nodes;
         void* prev_ids_mem = allocator->allocate(prev_ids_size, alignof(node_id));
         if (prev_ids_mem != nullptr) {
             prev_node_ids = static_cast<node_id*>(prev_ids_mem);
-            for (uint32_t i = 0; i < cfg.max_changes; ++i) {
+            for (uint32_t i = 0; i < cfg.max_nodes; ++i) {
                 prev_node_ids[i] = invalid_node_id;
             }
         }
@@ -94,7 +95,7 @@ class diff_engine {
                 allocator->deallocate(changes, sizeof(diff_change) * cfg.max_changes);
             }
             if (prev_node_ids != nullptr) {
-                allocator->deallocate(prev_node_ids, sizeof(node_id) * cfg.max_changes);
+                allocator->deallocate(prev_node_ids, sizeof(node_id) * cfg.max_nodes);
             }
         }
     }
@@ -156,7 +157,7 @@ class diff_engine {
 
     // Record node ID from previous graph
     [[nodiscard]] bool record_prev_node(node_id id) noexcept {
-        if (prev_node_count >= cfg.max_changes) {
+        if (prev_node_count >= cfg.max_nodes) {
             return false;
         }
         prev_node_ids[prev_node_count++] = id;

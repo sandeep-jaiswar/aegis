@@ -114,10 +114,10 @@ diff_result diff_engine::compute_diff(const scene_graph* prev,
         return diff_result::invalid_graph;
     }
 
-    // Build previous graph node ID set for O(1) existence checks
+    // Build previous graph node ID set for efficient existence checks
     const uint32_t prev_count = prev->count();
     for (uint32_t i = 0; i < prev_count; ++i) {
-        const scene_node* prev_node = prev->get_node(root_node_id + i);
+        const scene_node* prev_node = prev->get_node_by_index(i);
         if (prev_node != nullptr && prev_node->is_valid()) {
             if (!record_prev_node(prev_node->id)) {
                 out_change_count = change_count;
@@ -175,12 +175,12 @@ diff_result diff_engine::compute_diff(const scene_graph* prev,
 
     // Phase 2: Detect added nodes
     const uint32_t curr_count = current->count();
-    for (node_id check_id = root_node_id; check_id < root_node_id + curr_count; ++check_id) {
-        const scene_node* node = current->get_node(check_id);
+    for (uint32_t i = 0; i < curr_count; ++i) {
+        const scene_node* node = current->get_node_by_index(i);
         if (node != nullptr && node->is_valid()) {
-            if (!node_existed(check_id)) {
+            if (!node_existed(node->id)) {
                 const diff_change change{.operation = diff_op::add_node,
-                                        .node = check_id,
+                                        .node = node->id,
                                         .related_node = node->parent_id,
                                         .old_props = {},
                                         .new_props = node->props,

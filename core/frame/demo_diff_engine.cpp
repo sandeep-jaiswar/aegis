@@ -70,7 +70,7 @@ int main() {
     scene_graph curr_frame(graph_config, &arena);
 
     // Configure diff engine
-    diff_config diff_cfg{.max_changes = 1024};
+    diff_config diff_cfg{.max_changes = 1024, .max_nodes = 200};
     diff_engine differ(diff_cfg, &arena);
 
     if (!prev_frame.is_valid() || !curr_frame.is_valid() || !differ.is_valid()) {
