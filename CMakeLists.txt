@@ -73,6 +73,9 @@ add_subdirectory(core)
 # Build runtime library (platform abstraction, OS integration)
 add_subdirectory(runtime)
 
+# Build shell (minimal viewer-runtime, NOT a browser)
+add_subdirectory(shell)
+
 # App, tools, tests can be added later
 # add_subdirectory(app)
 # add_subdirectory(tools)
