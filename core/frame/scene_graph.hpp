@@ -334,6 +334,15 @@ class scene_graph {
         return nodes != nullptr && children != nullptr;
     }
 
+    // Get node by index (for iteration)
+    // Index must be in range [0, count())
+    [[nodiscard]] const scene_node* get_node_by_index(uint32_t index) const noexcept {
+        if (nodes == nullptr || index >= node_count) {
+            return nullptr;
+        }
+        return &nodes[index];
+    }
+
   private:
     // Find node by ID (internal helper)
     [[nodiscard]] scene_node* find_node(node_id id) noexcept {
