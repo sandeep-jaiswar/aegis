@@ -167,6 +167,8 @@
             browser: null,
             aegis: {
                 // Reference values from Aegis deterministic benchmark
+                // These are example values - actual performance varies by hardware
+                // Run ./build/core/browser_comparison_demo to get real values
                 min_ns: 1000,
                 p50_ns: 1500,
                 p90_ns: 2000,
@@ -223,7 +225,10 @@
         // High-precision timing
         class PerformanceTimer {
             now() {
-                return performance.now() * 1000000; // Convert to nanoseconds
+                // performance.now() returns milliseconds with microsecond precision
+                // Multiply by 1000000 to convert to nanoseconds for comparison with C++
+                // Note: Actual precision is still limited to microseconds (~1000ns)
+                return performance.now() * 1000000;
             }
         }
 

@@ -20,8 +20,11 @@ void print_percentiles(const benchmark::percentile_metrics& metrics) {
     printf("  Mean:   %10llu ns\n", static_cast<unsigned long long>(metrics.mean_ns));
 
     // Display variance estimate
-    // Note: True variance would require storing all timing samples
-    // This approximation assumes roughly uniform distribution
+    // Note: True variance calculation requires all samples and would use:
+    //   variance = sum((x_i - mean)^2) / n
+    // This is a rough approximation assuming uniform distribution:
+    //   variance ≈ (range^2) / 12
+    // For deterministic systems with low variance, this is sufficient for display
     const uint64_t range = metrics.max_ns - metrics.min_ns;
     const uint64_t variance_estimate = (range * range) / 12;
 
