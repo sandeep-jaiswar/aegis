@@ -197,5 +197,28 @@ if(BUILD_DIFF_ENGINE_DEMO)
     endif()
 endif()
 
+# Optional: Build GPU command demo executable
+option(BUILD_GPU_COMMAND_DEMO "Build GPU command backend demonstration" ON)
+if(BUILD_GPU_COMMAND_DEMO)
+    add_executable(gpu_command_demo frame/demo_gpu_command.cpp)
+    target_link_libraries(gpu_command_demo PRIVATE aegis_core)
+    target_compile_features(gpu_command_demo PRIVATE cxx_std_23)
+    
+    # Compiler-specific flags for demo
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(gpu_command_demo PRIVATE
+            -Wall
+            -Wextra
+            -Wpedantic
+            $<$<CONFIG:Release>:-O3>
+        )
+    elseif(MSVC)
+        target_compile_options(gpu_command_demo PRIVATE
+            /W4
+            $<$<CONFIG:Release>:/O2>
+        )
+    endif()
+endif()
+
 # Ensure no OS/runtime headers are included in core
 # This is enforced by the compile-time checks and architecture contract
