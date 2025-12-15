@@ -1,3 +1,5 @@
+#pragma once
+
 #include "core/benchmark/benchmark.hpp"
 #include "core/memory/frame_allocator.hpp"
 

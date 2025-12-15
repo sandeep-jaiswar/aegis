@@ -4,6 +4,12 @@
 
 set -e
 
+# Check for required tools
+if ! command -v awk &> /dev/null; then
+    echo "❌ Error: 'awk' is required but not installed."
+    exit 1
+fi
+
 BASELINE_FILE="${1:-baseline_benchmarks.txt}"
 CURRENT_FILE="${2:-current_benchmarks.txt}"
 THRESHOLD="${3:-0.05}"  # 5% regression threshold by default
@@ -11,7 +17,9 @@ THRESHOLD="${3:-0.05}"  # 5% regression threshold by default
 echo "=== Aegis Benchmark Regression Detector ==="
 echo "Baseline: $BASELINE_FILE"
 echo "Current:  $CURRENT_FILE"
-echo "Threshold: $(echo "$THRESHOLD * 100" | bc)%"
+# Use awk for threshold percentage calculation
+THRESHOLD_PCT=$(awk -v t="$THRESHOLD" 'BEGIN {printf "%.1f", t * 100}')
+echo "Threshold: ${THRESHOLD_PCT}%"
 echo ""
 
 # Check if files exist
@@ -51,12 +59,12 @@ compare_metric() {
     baseline=$(echo "$baseline" | sed 's/ns$//')
     current=$(echo "$current" | sed 's/ns$//')
     
-    # Calculate percentage change
-    local change=$(echo "scale=4; ($current - $baseline) / $baseline" | bc 2>/dev/null || echo "0")
+    # Calculate percentage change using awk
+    local change=$(awk -v c="$current" -v b="$baseline" 'BEGIN {printf "%.4f", (c - b) / b}')
     
-    # Compare against threshold
-    local is_regression=$(echo "$change > $threshold" | bc 2>/dev/null || echo "0")
-    local is_improvement=$(echo "$change < -$threshold" | bc 2>/dev/null || echo "0")
+    # Compare against threshold using awk
+    local is_regression=$(awk -v ch="$change" -v th="$threshold" 'BEGIN {print (ch > th) ? 1 : 0}')
+    local is_improvement=$(awk -v ch="$change" -v th="$threshold" 'BEGIN {print (ch < -th) ? 1 : 0}')
     
     if [ "$is_regression" = "1" ]; then
         echo "REGRESSED"
@@ -100,16 +108,22 @@ for bench in "${BENCHMARKS[@]}"; do
     echo "    Baseline P99: $baseline_p99_clean ns"
     echo "    Current P99:  $current_p99_clean ns"
     
-    status=$(compare_metric "$baseline_p99_clean" "$current_p99_clean" "$THRESHOLD")
-    result=$?
+    status=$(compare_metric "$baseline_p99_clean" "$current_p99_clean" "$THRESHOLD") || result=$?
+    
+    # If result is not set, it means the function succeeded (returned 0)
+    : ${result:=0}
     
     echo "    Status: $status"
     
     if [ $result -ne 0 ]; then
         REGRESSION_FOUND=1
-        change=$(echo "scale=2; ($current_p99_clean - $baseline_p99_clean) / $baseline_p99_clean * 100" | bc)
+        # Calculate change percentage using awk
+        change=$(awk -v c="$current_p99_clean" -v b="$baseline_p99_clean" 'BEGIN {printf "%.2f", (c - b) / b * 100}')
         echo "    ⚠️  Performance regression detected: +${change}%"
     fi
+    
+    # Reset result for next iteration
+    result=0
     
     echo ""
 done

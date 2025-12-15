@@ -101,7 +101,7 @@ class workload_recorder {
     size_t capacity;
     size_t event_count{0};
     const char* name{nullptr};
-    uint64_t current_hash{0x811c9dc5}; // FNV-1a offset basis
+    uint64_t current_hash{0xcbf29ce484222325ULL}; // FNV-1a 64-bit offset basis
 };
 
 // Workload player - replays recorded workloads deterministically
