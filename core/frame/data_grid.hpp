@@ -274,6 +274,9 @@ class data_grid {
 
     // Sort grid by column (in-place, stable sort)
     // Uses stable IDs to maintain row identity across sort
+    // Complexity: O(n²) worst case, O(n) best case for nearly-sorted data
+    // Note: Trading grids are often nearly-sorted (prices update incrementally)
+    //       For large random datasets, consider merge sort or radix sort
     void sort_by_column(uint32_t column, bool ascending = true) noexcept {
         if (column >= cfg.max_columns || rows == nullptr) {
             return;

@@ -164,7 +164,7 @@ int main() {
     double populate_time = t.elapsed_ms();
     printf("  Populated %u rows in %.2f ms\n", ROW_COUNT, populate_time);
     printf("  Average per row: %.4f ms\n", populate_time / ROW_COUNT);
-    printf("  Memory used: %.2f MB\n\n", alloc.bytes_in_use() / (1024.0 * 1024.0));
+    printf("  Memory used: %.2f MB\n\n", alloc.bytes_used() / (1024.0 * 1024.0));
 
     // Test 2: Sort Performance
     printf("Test 2: Sorting by price column...\n");
@@ -273,7 +273,7 @@ int main() {
     // Test 7: Memory Stability
     printf("Test 7: Memory stability over multiple update cycles...\n");
     
-    size_t initial_memory = alloc.bytes_in_use();
+    size_t initial_memory = alloc.bytes_used();
     printf("  Initial memory: %.2f MB\n", initial_memory / (1024.0 * 1024.0));
     
     // Perform 100 update cycles
@@ -282,13 +282,13 @@ int main() {
         update_market_data(grid, row_ids, ROW_COUNT);
         
         if (cycle % 20 == 0) {
-            size_t current_memory = alloc.bytes_in_use();
+            size_t current_memory = alloc.bytes_used();
             printf("  Cycle %d - Memory: %.2f MB\n", 
                    cycle, current_memory / (1024.0 * 1024.0));
         }
     }
     
-    size_t final_memory = alloc.bytes_in_use();
+    size_t final_memory = alloc.bytes_used();
     printf("  Final memory: %.2f MB\n", final_memory / (1024.0 * 1024.0));
     printf("  Memory growth: %.2f KB\n", (final_memory - initial_memory) / 1024.0);
     printf("  Stability: %s\n", 
