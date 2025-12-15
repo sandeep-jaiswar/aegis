@@ -3,9 +3,9 @@
 #include "core/memory/frame_allocator.hpp"
 #include "core/memory/pool_allocator.hpp"
 
-#include <cstdio>
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
+#include <cstdio>
 
 // Demonstration of the memory system
 // This shows:
@@ -62,7 +62,7 @@ int main() {
     // 1. Demonstrate Arena Allocator
     printf("\n1. Arena Allocator Demo\n");
     print_separator();
-    
+
     aegis::core::memory::arena_allocator arena(arena_buffer, sizeof(arena_buffer));
     printf("Arena capacity: %zu bytes\n\n", arena.get_capacity());
 
@@ -85,7 +85,7 @@ int main() {
     // 2. Demonstrate Frame Allocator
     printf("\n2. Frame Allocator Demo\n");
     print_separator();
-    
+
     aegis::core::memory::frame_allocator frame_alloc(frame_buffer, sizeof(frame_buffer));
     printf("Frame allocator capacity: %zu bytes\n\n", frame_alloc.get_capacity());
 
@@ -94,19 +94,19 @@ int main() {
 
     // Execute first frame
     printf("Executing Frame 1...\n");
-    
+
     // Begin frame
     (void)ctx.begin_frame(1000000);
-    
+
     // Simulate frame allocations - these would be done by frame logic
     void* frame_ptr1 = frame_alloc.allocate(64, 8);
     void* frame_ptr2 = frame_alloc.allocate(128, 16);
     void* frame_ptr3 = frame_alloc.allocate(32, 4);
     printf("Allocated 3 objects (%p, %p, %p)\n", frame_ptr1, frame_ptr2, frame_ptr3);
-    
+
     printf("\nBefore end_frame():\n");
     print_frame_allocator_stats(frame_alloc);
-    
+
     // Transition through phases and end frame
     (void)ctx.apply_events();
     (void)ctx.update_state();
@@ -114,7 +114,7 @@ int main() {
     (void)ctx.build_scene();
     (void)ctx.diff_scene();
     (void)ctx.end_frame();
-    
+
     printf("\nAfter end_frame():\n");
     print_frame_allocator_stats(frame_alloc);
     print_separator();
@@ -124,21 +124,21 @@ int main() {
     printf("\nExecuting Frame 2...\n");
     ctx.reset();
     (void)ctx.begin_frame(2000000);
-    
+
     // Allocate different amounts in second frame
     void* frame2_ptr1 = frame_alloc.allocate(512, 16);
     printf("Allocated 512 bytes at %p (same buffer, reused after reset)\n", frame2_ptr1);
-    
+
     printf("\nBefore end_frame():\n");
     print_frame_allocator_stats(frame_alloc);
-    
+
     (void)ctx.apply_events();
     (void)ctx.update_state();
     (void)ctx.compute_layout();
     (void)ctx.build_scene();
     (void)ctx.diff_scene();
     (void)ctx.end_frame();
-    
+
     printf("\nAfter end_frame():\n");
     print_frame_allocator_stats(frame_alloc);
     print_separator();
@@ -147,12 +147,12 @@ int main() {
     // 3. Demonstrate Pool Allocator
     printf("\n3. Pool Allocator Demo\n");
     print_separator();
-    
+
     constexpr size_t block_size = 64;
     constexpr size_t block_alignment = 8;
-    aegis::core::memory::pool_allocator pool(pool_buffer, sizeof(pool_buffer), 
-                                             block_size, block_alignment);
-    
+    aegis::core::memory::pool_allocator pool(pool_buffer, sizeof(pool_buffer), block_size,
+                                             block_alignment);
+
     printf("Pool allocator:\n");
     printf("  Block size: %zu bytes\n", pool.get_block_size());
     printf("  Block count: %zu\n", pool.get_block_count());
@@ -194,6 +194,6 @@ int main() {
     printf("  ✓ Zero calls to global new/delete\n");
     printf("  ✓ Allocation costs measurable and logged\n");
     printf("  ✓ Frame allocator fully resets at end_frame()\n");
-    
+
     return 0;
 }

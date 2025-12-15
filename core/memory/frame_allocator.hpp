@@ -18,8 +18,7 @@ class frame_allocator final : public allocator {
     // Create frame allocator with pre-allocated buffer
     // buffer must remain valid for the lifetime of the allocator
     explicit frame_allocator(void* buffer_ptr, size_t capacity_val) noexcept
-        : buffer(static_cast<uint8_t*>(buffer_ptr))
-        , capacity(capacity_val) {
+        : buffer(static_cast<uint8_t*>(buffer_ptr)), capacity(capacity_val) {
     }
 
     ~frame_allocator() noexcept override = default;
