@@ -1,154 +1,116 @@
--- -
-#Aegis C++ Static Analysis Configuration
-#Enforces rules from COPILOT_INSTRUCTIONS.md and ARCHITECTURE.md
+---
+# Aegis C++ Static Analysis Configuration
+# Enforces rules from COPILOT_INSTRUCTIONS.md and ARCHITECTURE.md
 #
-#Key enforcement areas:
+# Key enforcement areas:
 # 1. Ban shared_ptr usage
 # 2. Ban exceptions in hot paths
 # 3. Enforce deterministic code patterns
 # 4. Prevent implicit allocations
-# 5. Enforce modern C ++ 23 best practices
+# 5. Enforce modern C++23 best practices
 
-    Checks : > -*,
-    bugprone - *, -bugprone - easily - swappable - parameters, -bugprone - exception - escape,
-    cert - *, -cert - err58 - cpp, clang - analyzer - *, concurrency - *, cppcoreguidelines - *,
-    -cppcoreguidelines - avoid - magic - numbers, -cppcoreguidelines - avoid - c - arrays,
-    -cppcoreguidelines - pro - bounds - array - to - pointer - decay,
-    -cppcoreguidelines - pro - bounds - constant - array - index,
-    -cppcoreguidelines - pro - bounds - pointer - arithmetic, google - *,
-    -google - runtime - references, hicpp - *, -hicpp - no - array - decay,
-    -hicpp - avoid - c - arrays, -hicpp - signed - bitwise, misc - *,
-    -misc - non - private - member - variables - in - classes, -misc - use - anonymous - namespace,
-    -misc - include - cleaner, modernize - *, -modernize - use - trailing - return -type,
-    -modernize - avoid - c - arrays, performance - *, readability - *,
-    -readability - magic - numbers, -readability - identifier - length,
-    -readability - function - cognitive -
-        complexity
+Checks: >
+  -*,
+  bugprone-*,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-exception-escape,
+  cert-*,
+  -cert-err58-cpp,
+  clang-analyzer-*,
+  concurrency-*,
+  cppcoreguidelines-*,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -cppcoreguidelines-avoid-c-arrays,
+  -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  -cppcoreguidelines-pro-bounds-constant-array-index,
+  -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+  google-*,
+  -google-runtime-references,
+  hicpp-*,
+  -hicpp-no-array-decay,
+  -hicpp-avoid-c-arrays,
+  -hicpp-signed-bitwise,
+  misc-*,
+  -misc-non-private-member-variables-in-classes,
+  -misc-use-anonymous-namespace,
+  -misc-include-cleaner,
+  modernize-*,
+  -modernize-use-trailing-return-type,
+  -modernize-avoid-c-arrays,
+  performance-*,
+  readability-*,
+  -readability-magic-numbers,
+  -readability-identifier-length,
+  -readability-function-cognitive-complexity
 
-            WarningsAsErrors : '*'
+WarningsAsErrors: '*'
 
-                               HeaderFilterRegex : '.*\.(hpp|h)$'
+HeaderFilterRegex: '.*\.(hpp|h)$'
 
-                                                   CheckOptions :
-#Enforce namespace naming
-    -key : readability -
-           identifier -
-           naming.NamespaceCase value : lower_case
-
-#Enforce class naming
-           -
-           key : readability -
-                 identifier -
-                 naming.ClassCase value : lower_case
-
-#Enforce struct naming
-                 -
-                 key : readability -
-                       identifier -
-                       naming.StructCase value : lower_case
-
-#Enforce constant naming
-                       -
-                       key : readability -
-                             identifier -
-                             naming.ConstantCase value : lower_case
-
-#Enforce function naming
-                             -
-                             key : readability -
-                                   identifier -
-                                   naming.FunctionCase value : lower_case
-
-#Enforce variable naming
-                                   -
-                                   key : readability -
-                                         identifier -
-                                         naming.VariableCase value : lower_case
-
-#Enforce parameter naming
-                                         -
-                                         key : readability -
-                                               identifier -
-                                               naming.ParameterCase value : lower_case
-
-#Enforce member variable naming(allow trailing underscore)
-                                               -
-                                               key : readability -
-                                                     identifier -
-                                                     naming.MemberCase value : lower_case -
-                                                     key : readability -
-                                                           identifier -
-                                                           naming.MemberSuffix value
-    : '_' - key : readability -
-                  identifier -
-                  naming.MemberIgnoredRegexp value : ''
-
-#Enforce private member variable naming(trailing underscore)
-                  -
-                  key : readability -
-                        identifier -
-                        naming.PrivateMemberCase value : lower_case -
-                        key : readability -
-                              identifier -
-                              naming.PrivateMemberSuffix value : '_'
-
-#Performance settings
-                              -
-                              key : performance -
-                                    move -
-                                    const -
-                                    arg.CheckTriviallyCopyableMove value : 'true'
-
-                                    -
-                                    key : performance -
-                                          unnecessary -
-                                          value -
-                                          param.AllowedTypes value : ''
-
-#Modernize settings
-                                          -
-                                          key : modernize -
-                                                use -
-                                                nullptr.NullMacros value : 'NULL'
-
-#Google style settings
-                                                -
-                                                key : google -
-                                                      readability -
-                                                      braces -
-                                                      around -
-                                                      statements.ShortStatementLines value : '0'
-
-#Readability settings
-                                                      -
-                                                      key
-    : readability -
-      braces -
-      around -
-      statements.ShortStatementLines value : '0'
-
-      -
-      key : readability -
-            function -
-            size.LineThreshold value : '200'
-
-            -
-            key : readability -
-                  function -
-                  size.StatementThreshold value : '150'
-
-                  -
-                  key : readability -
-                        function -
-                        size.BranchThreshold value : '30'
-
-                        -
-                        key : readability -
-                              function -
-                              size.ParameterThreshold value : '8'
-
-#Avoid implicit conversions
-                              -
-                              key : google -
-                                    explicit -
-                                    constructor.AllowSingleArgument value : 'false'
+CheckOptions:
+  # Enforce namespace naming
+  - key: readability-identifier-naming.NamespaceCase
+    value: lower_case
+  
+  # Enforce class naming
+  - key: readability-identifier-naming.ClassCase
+    value: lower_case
+  
+  # Enforce struct naming
+  - key: readability-identifier-naming.StructCase
+    value: lower_case
+  
+  # Enforce constant naming
+  - key: readability-identifier-naming.ConstantCase
+    value: lower_case
+  
+  # Enforce function naming
+  - key: readability-identifier-naming.FunctionCase
+    value: lower_case
+  
+  # Enforce variable naming
+  - key: readability-identifier-naming.VariableCase
+    value: lower_case
+  
+  # Enforce parameter naming
+  - key: readability-identifier-naming.ParameterCase
+    value: lower_case
+  
+  # Enforce member variable naming
+  - key: readability-identifier-naming.MemberCase
+    value: lower_case
+  
+  # Performance settings
+  - key: performance-move-const-arg.CheckTriviallyCopyableMove
+    value: 'true'
+  
+  - key: performance-unnecessary-value-param.AllowedTypes
+    value: ''
+  
+  # Modernize settings
+  - key: modernize-use-nullptr.NullMacros
+    value: 'NULL'
+  
+  # Google style settings
+  - key: google-readability-braces-around-statements.ShortStatementLines
+    value: '0'
+  
+  # Readability settings
+  - key: readability-braces-around-statements.ShortStatementLines
+    value: '0'
+  
+  - key: readability-function-size.LineThreshold
+    value: '200'
+  
+  - key: readability-function-size.StatementThreshold
+    value: '150'
+  
+  - key: readability-function-size.BranchThreshold
+    value: '30'
+  
+  - key: readability-function-size.ParameterThreshold
+    value: '8'
+  
+  # Avoid implicit conversions
+  - key: google-explicit-constructor.AllowSingleArgument
+    value: 'false'
