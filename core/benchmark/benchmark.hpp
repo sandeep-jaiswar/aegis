@@ -10,9 +10,9 @@ namespace aegis::core::benchmark {
 
 // Benchmark configuration
 struct benchmark_config {
-    uint64_t warmup_iterations{10};   // Iterations before measuring
-    uint64_t measured_iterations{100}; // Iterations to measure
-    bool record_workload{false};       // Record workload for replay
+    uint64_t warmup_iterations{10};     // Iterations before measuring
+    uint64_t measured_iterations{100};  // Iterations to measure
+    bool record_workload{false};        // Record workload for replay
     const char* workload_file{nullptr}; // File to save/load workload
 };
 
@@ -33,11 +33,13 @@ class benchmark {
 
     // Setup before benchmark execution
     // Called once before warmup iterations
-    virtual void setup() noexcept {}
+    virtual void setup() noexcept {
+    }
 
     // Teardown after benchmark execution
     // Called once after all iterations complete
-    virtual void teardown() noexcept {}
+    virtual void teardown() noexcept {
+    }
 
     // Execute one iteration of the benchmark
     // This is the hot path that gets measured
@@ -58,8 +60,7 @@ class benchmark {
 // Helper to calculate percentiles from sorted timing data
 // data must be sorted in ascending order
 // data_size is the number of samples
-inline void calculate_percentiles(const uint64_t* data,
-                                  size_t data_size,
+inline void calculate_percentiles(const uint64_t* data, size_t data_size,
                                   percentile_metrics& out_metrics) noexcept {
     if (data_size == 0) {
         return;

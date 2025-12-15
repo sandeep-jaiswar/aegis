@@ -19,30 +19,30 @@ struct percentile_metrics {
 
 // Benchmark result containing timing and memory statistics
 struct benchmark_result {
-    const char* name{nullptr};           // Benchmark name
-    uint64_t iterations{0};              // Number of iterations executed
-    uint64_t total_time_ns{0};           // Total time for all iterations
-    percentile_metrics timing{};         // Timing percentile metrics
-    size_t total_bytes_allocated{0};     // Total bytes allocated
-    size_t peak_bytes_used{0};           // Peak memory usage
-    size_t total_allocations{0};         // Total allocation count
-    bool deterministic{true};            // Whether results are deterministic
-    uint64_t workload_hash{0};           // Hash of workload for replay verification
+    const char* name{nullptr};       // Benchmark name
+    uint64_t iterations{0};          // Number of iterations executed
+    uint64_t total_time_ns{0};       // Total time for all iterations
+    percentile_metrics timing{};     // Timing percentile metrics
+    size_t total_bytes_allocated{0}; // Total bytes allocated
+    size_t peak_bytes_used{0};       // Peak memory usage
+    size_t total_allocations{0};     // Total allocation count
+    bool deterministic{true};        // Whether results are deterministic
+    uint64_t workload_hash{0};       // Hash of workload for replay verification
 };
 
 // Result comparison for regression detection
 enum class comparison_result : uint8_t {
-    improved = 0,     // New result is better
-    unchanged = 1,    // Results are equivalent
-    regressed = 2,    // New result is worse
-    incomparable = 3  // Cannot compare (different workloads)
+    improved = 0,    // New result is better
+    unchanged = 1,   // Results are equivalent
+    regressed = 2,   // New result is worse
+    incomparable = 3 // Cannot compare (different workloads)
 };
 
 // Compare two benchmark results
 // Returns whether there is a regression based on P99 threshold
-[[nodiscard]] inline comparison_result compare_results(const benchmark_result& baseline,
-                                                       const benchmark_result& current,
-                                                       double regression_threshold = 0.05) noexcept {
+[[nodiscard]] inline comparison_result
+compare_results(const benchmark_result& baseline, const benchmark_result& current,
+                double regression_threshold = 0.05) noexcept {
     // Check if workloads are comparable
     if (baseline.workload_hash != current.workload_hash) {
         return comparison_result::incomparable;

@@ -36,8 +36,7 @@ struct workload {
 class workload_recorder {
   public:
     // Create recorder with event buffer
-    explicit workload_recorder(workload_event* event_buffer_ptr,
-                              size_t capacity_val) noexcept
+    explicit workload_recorder(workload_event* event_buffer_ptr, size_t capacity_val) noexcept
         : event_buffer(event_buffer_ptr), capacity(capacity_val) {
     }
 
@@ -57,11 +56,8 @@ class workload_recorder {
     }
 
     // Record an event
-    bool record_event(workload_event_type type,
-                     uint64_t timestamp_ns,
-                     uint64_t param1 = 0,
-                     uint64_t param2 = 0,
-                     uint64_t param3 = 0) noexcept {
+    bool record_event(workload_event_type type, uint64_t timestamp_ns, uint64_t param1 = 0,
+                      uint64_t param2 = 0, uint64_t param3 = 0) noexcept {
         if (event_count >= capacity) {
             return false;
         }

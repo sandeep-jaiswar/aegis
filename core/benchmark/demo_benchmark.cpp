@@ -175,18 +175,18 @@ void demo_regression_detection() {
     printf("Result: ");
 
     switch (comparison) {
-    case benchmark::comparison_result::improved:
-        printf("IMPROVED\n");
-        break;
-    case benchmark::comparison_result::unchanged:
-        printf("UNCHANGED\n");
-        break;
-    case benchmark::comparison_result::regressed:
-        printf("REGRESSED (Performance degradation detected!)\n");
-        break;
-    case benchmark::comparison_result::incomparable:
-        printf("INCOMPARABLE\n");
-        break;
+        case benchmark::comparison_result::improved:
+            printf("IMPROVED\n");
+            break;
+        case benchmark::comparison_result::unchanged:
+            printf("UNCHANGED\n");
+            break;
+        case benchmark::comparison_result::regressed:
+            printf("REGRESSED (Performance degradation detected!)\n");
+            break;
+        case benchmark::comparison_result::incomparable:
+            printf("INCOMPARABLE\n");
+            break;
     }
 }
 

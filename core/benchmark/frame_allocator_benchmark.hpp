@@ -6,8 +6,7 @@ namespace aegis::core::benchmark {
 // Benchmark for frame allocator performance
 class frame_allocator_benchmark final : public benchmark {
   public:
-    explicit frame_allocator_benchmark(memory::frame_allocator* alloc) noexcept
-        : allocator(alloc) {
+    explicit frame_allocator_benchmark(memory::frame_allocator* alloc) noexcept : allocator(alloc) {
     }
 
     [[nodiscard]] const char* name() const noexcept override {

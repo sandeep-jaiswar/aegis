@@ -40,9 +40,8 @@ class benchmark_runner {
   public:
     // Create benchmark runner with timing array buffer
     // timing_buffer must have space for at least max_iterations entries
-    explicit benchmark_runner(uint64_t* timing_buffer_ptr,
-                             size_t max_iterations_val,
-                             timestamp_provider* timer_ptr = nullptr) noexcept
+    explicit benchmark_runner(uint64_t* timing_buffer_ptr, size_t max_iterations_val,
+                              timestamp_provider* timer_ptr = nullptr) noexcept
         : timing_buffer(timing_buffer_ptr), max_iterations(max_iterations_val), timer(timer_ptr) {
         if (timer == nullptr) {
             timer = &default_timer;
@@ -59,8 +58,7 @@ class benchmark_runner {
 
     // Run benchmark with specified configuration
     // Returns benchmark result with timing and memory statistics
-    [[nodiscard]] benchmark_result run(benchmark& bench,
-                                       const benchmark_config& config) noexcept {
+    [[nodiscard]] benchmark_result run(benchmark& bench, const benchmark_config& config) noexcept {
         benchmark_result result{};
         result.name = bench.name();
         result.workload_hash = bench.get_workload_hash();
