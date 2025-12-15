@@ -243,5 +243,28 @@ if(BUILD_DATA_GRID_DEMO)
     endif()
 endif()
 
+# Optional: Build benchmark demo executable
+option(BUILD_BENCHMARK_DEMO "Build deterministic benchmark harness demonstration" ON)
+if(BUILD_BENCHMARK_DEMO)
+    add_executable(benchmark_demo benchmark/demo_benchmark.cpp)
+    target_link_libraries(benchmark_demo PRIVATE aegis_core)
+    target_compile_features(benchmark_demo PRIVATE cxx_std_23)
+    
+    # Compiler-specific flags for demo
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(benchmark_demo PRIVATE
+            -Wall
+            -Wextra
+            -Wpedantic
+            $<$<CONFIG:Release>:-O3>
+        )
+    elseif(MSVC)
+        target_compile_options(benchmark_demo PRIVATE
+            /W4
+            $<$<CONFIG:Release>:/O2>
+        )
+    endif()
+endif()
+
 # Ensure no OS/runtime headers are included in core
 # This is enforced by the compile-time checks and architecture contract

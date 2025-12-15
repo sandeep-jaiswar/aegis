@@ -14,32 +14,31 @@ void print_gpu_command(uint32_t index, const gpu_command& cmd) {
     printf("  [%u] ", index);
 
     switch (cmd.type) {
-    case gpu_command_type::noop:
-        printf("NOOP\n");
-        break;
-    case gpu_command_type::update_buffer:
-        printf("UPDATE_BUFFER: buffer=%u, offset=%u, size=%u\n",
-               cmd.buffer_update.buffer_id, cmd.buffer_update.offset,
-               cmd.buffer_update.size);
-        break;
-    case gpu_command_type::draw_indexed:
-        printf("DRAW_INDEXED: indices=%u, instances=%u\n",
-               cmd.draw_indexed.index_count, cmd.draw_indexed.instance_count);
-        break;
-    case gpu_command_type::set_pipeline:
-        printf("SET_PIPELINE: pipeline=%u, vbuf=%u, ibuf=%u, ubuf=%u\n",
-               cmd.pipeline_state.pipeline_id, cmd.pipeline_state.vertex_buffer_id,
-               cmd.pipeline_state.index_buffer_id, cmd.pipeline_state.uniform_buffer_id);
-        break;
-    case gpu_command_type::begin_batch:
-        printf("BEGIN_BATCH: size=%u\n", cmd.batch_size);
-        break;
-    case gpu_command_type::end_batch:
-        printf("END_BATCH\n");
-        break;
-    case gpu_command_type::sync_point:
-        printf("SYNC_POINT\n");
-        break;
+        case gpu_command_type::noop:
+            printf("NOOP\n");
+            break;
+        case gpu_command_type::update_buffer:
+            printf("UPDATE_BUFFER: buffer=%u, offset=%u, size=%u\n", cmd.buffer_update.buffer_id,
+                   cmd.buffer_update.offset, cmd.buffer_update.size);
+            break;
+        case gpu_command_type::draw_indexed:
+            printf("DRAW_INDEXED: indices=%u, instances=%u\n", cmd.draw_indexed.index_count,
+                   cmd.draw_indexed.instance_count);
+            break;
+        case gpu_command_type::set_pipeline:
+            printf("SET_PIPELINE: pipeline=%u, vbuf=%u, ibuf=%u, ubuf=%u\n",
+                   cmd.pipeline_state.pipeline_id, cmd.pipeline_state.vertex_buffer_id,
+                   cmd.pipeline_state.index_buffer_id, cmd.pipeline_state.uniform_buffer_id);
+            break;
+        case gpu_command_type::begin_batch:
+            printf("BEGIN_BATCH: size=%u\n", cmd.batch_size);
+            break;
+        case gpu_command_type::end_batch:
+            printf("END_BATCH\n");
+            break;
+        case gpu_command_type::sync_point:
+            printf("SYNC_POINT\n");
+            break;
     }
 }
 
@@ -85,18 +84,27 @@ int main() {
     // === Frame 1: Build initial scene ===
     printf("Frame 1: Building initial scene with 3 rectangles\n");
 
-    node_properties rect1_props{.x = 10.0F, .y = 10.0F, .width = 100.0F, .height = 50.0F,
-                               .color = 0xFF0000FF}; // Red
+    node_properties rect1_props{.x = 10.0F,
+                                .y = 10.0F,
+                                .width = 100.0F,
+                                .height = 50.0F,
+                                .color = 0xFF0000FF}; // Red
     node_id rect1 = prev_scene.create_node(node_type::rectangle, rect1_props);
     (void)prev_scene.add_child(root_node_id, rect1);
 
-    node_properties rect2_props{.x = 120.0F, .y = 10.0F, .width = 100.0F, .height = 50.0F,
-                               .color = 0x00FF00FF}; // Green
+    node_properties rect2_props{.x = 120.0F,
+                                .y = 10.0F,
+                                .width = 100.0F,
+                                .height = 50.0F,
+                                .color = 0x00FF00FF}; // Green
     node_id rect2 = prev_scene.create_node(node_type::rectangle, rect2_props);
     (void)prev_scene.add_child(root_node_id, rect2);
 
-    node_properties rect3_props{.x = 230.0F, .y = 10.0F, .width = 100.0F, .height = 50.0F,
-                               .color = 0x0000FFFF}; // Blue
+    node_properties rect3_props{.x = 230.0F,
+                                .y = 10.0F,
+                                .width = 100.0F,
+                                .height = 50.0F,
+                                .color = 0x0000FFFF}; // Blue
     node_id rect3 = prev_scene.create_node(node_type::rectangle, rect3_props);
     (void)prev_scene.add_child(root_node_id, rect3);
 
@@ -109,10 +117,10 @@ int main() {
 
     // Rebuild current scene with modifications
     node_properties rect1_modified{.x = 15.0F, // Moved right
-                                  .y = 10.0F,
-                                  .width = 100.0F,
-                                  .height = 50.0F,
-                                  .color = 0xFF00FFFF}; // Magenta (color changed)
+                                   .y = 10.0F,
+                                   .width = 100.0F,
+                                   .height = 50.0F,
+                                   .color = 0xFF00FFFF}; // Magenta (color changed)
     rect1 = curr_scene.create_node(node_type::rectangle, rect1_modified);
     (void)curr_scene.add_child(root_node_id, rect1);
 
@@ -142,20 +150,20 @@ int main() {
         const diff_change& change = changes[i];
         printf("    [%u] ", i);
         switch (change.operation) {
-        case diff_op::add_node:
-            printf("ADD_NODE: node=%lu\n", static_cast<unsigned long>(change.node));
-            break;
-        case diff_op::remove_node:
-            printf("REMOVE_NODE: node=%lu\n", static_cast<unsigned long>(change.node));
-            break;
-        case diff_op::update_props:
-            printf("UPDATE_PROPS: node=%lu (x=%.1f->%.1f, color=0x%X->0x%X)\n",
-                   static_cast<unsigned long>(change.node), change.old_props.x,
-                   change.new_props.x, change.old_props.color, change.new_props.color);
-            break;
-        default:
-            printf("OTHER\n");
-            break;
+            case diff_op::add_node:
+                printf("ADD_NODE: node=%lu\n", static_cast<unsigned long>(change.node));
+                break;
+            case diff_op::remove_node:
+                printf("REMOVE_NODE: node=%lu\n", static_cast<unsigned long>(change.node));
+                break;
+            case diff_op::update_props:
+                printf("UPDATE_PROPS: node=%lu (x=%.1f->%.1f, color=0x%X->0x%X)\n",
+                       static_cast<unsigned long>(change.node), change.old_props.x,
+                       change.new_props.x, change.old_props.color, change.new_props.color);
+                break;
+            default:
+                printf("OTHER\n");
+                break;
         }
     }
 
@@ -209,8 +217,11 @@ int main() {
     rect3 = curr_scene.create_node(node_type::rectangle, rect3_props);
     (void)curr_scene.add_child(root_node_id, rect3);
 
-    node_properties rect4_props{.x = 10.0F, .y = 70.0F, .width = 100.0F, .height = 50.0F,
-                               .color = 0xFFFF00FF}; // Yellow
+    node_properties rect4_props{.x = 10.0F,
+                                .y = 70.0F,
+                                .width = 100.0F,
+                                .height = 50.0F,
+                                .color = 0xFFFF00FF}; // Yellow
     node_id rect4 = curr_scene.create_node(node_type::rectangle, rect4_props);
     (void)curr_scene.add_child(root_node_id, rect4);
 

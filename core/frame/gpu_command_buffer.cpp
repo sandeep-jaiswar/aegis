@@ -15,18 +15,18 @@ static uint32_t get_buffer_id_for_node(node_id id) noexcept {
 // Maps node types to different rendering pipelines
 static uint32_t get_pipeline_id_for_node(node_type type) noexcept {
     switch (type) {
-    case node_type::rectangle:
-        return 1; // Rectangle shader pipeline
-    case node_type::text:
-        return 2; // Text rendering pipeline
-    case node_type::image:
-        return 3; // Image rendering pipeline
-    case node_type::container:
-        return 0; // Container (no rendering)
-    case node_type::custom:
-        return 4; // Custom rendering pipeline
-    default:
-        return 0;
+        case node_type::rectangle:
+            return 1; // Rectangle shader pipeline
+        case node_type::text:
+            return 2; // Text rendering pipeline
+        case node_type::image:
+            return 3; // Image rendering pipeline
+        case node_type::container:
+            return 0; // Container (no rendering)
+        case node_type::custom:
+            return 4; // Custom rendering pipeline
+        default:
+            return 0;
     }
 }
 
@@ -82,47 +82,46 @@ gpu_command_result gpu_command_buffer::translate_diff(const diff_change* changes
         const diff_change& change = changes[i];
 
         switch (change.operation) {
-        case diff_op::add_node:
-        case diff_op::update_props: {
-            // Node was added or updated - need to update GPU buffer
-            const scene_node* node = current_scene->get_node(change.node);
-            if (node == nullptr || node->type == node_type::container) {
-                continue; // Skip containers (they don't render)
+            case diff_op::add_node:
+            case diff_op::update_props: {
+                // Node was added or updated - need to update GPU buffer
+                const scene_node* node = current_scene->get_node(change.node);
+                if (node == nullptr || node->type == node_type::container) {
+                    continue; // Skip containers (they don't render)
+                }
+
+                // Create buffer update for node properties
+                const uint32_t buffer_id = get_buffer_id_for_node(node->id);
+                const uint32_t size = sizeof(node_properties);
+
+                // Store buffer data in our internal storage
+                uint32_t data_offset = 0;
+                const gpu_command_result result = add_buffer_data(&node->props, size, data_offset);
+                if (result != gpu_command_result::success) {
+                    return result;
+                }
+
+                // Create buffer update command
+                const gpu_command cmd = gpu_command::create_buffer_update(
+                    buffer_id, 0, size, buffer_data + data_offset);
+
+                const gpu_command_result add_result = add_command(cmd);
+                if (add_result != gpu_command_result::success) {
+                    return add_result;
+                }
+
+                buffer_update_count++;
+                break;
             }
-
-            // Create buffer update for node properties
-            const uint32_t buffer_id = get_buffer_id_for_node(node->id);
-            const uint32_t size = sizeof(node_properties);
-
-            // Store buffer data in our internal storage
-            uint32_t data_offset = 0;
-            const gpu_command_result result =
-                add_buffer_data(&node->props, size, data_offset);
-            if (result != gpu_command_result::success) {
-                return result;
-            }
-
-            // Create buffer update command
-            const gpu_command cmd = gpu_command::create_buffer_update(
-                buffer_id, 0, size, buffer_data + data_offset);
-
-            const gpu_command_result add_result = add_command(cmd);
-            if (add_result != gpu_command_result::success) {
-                return add_result;
-            }
-
-            buffer_update_count++;
-            break;
-        }
-        case diff_op::remove_node:  // NOLINT(bugprone-branch-clone)
-            // Node removed - no GPU update needed (we just don't draw it)
-            // In a real system, we might free GPU resources here
-            break;
-        case diff_op::add_child:
-        case diff_op::remove_child:
-        case diff_op::reorder_child:
-            // Child operations don't directly affect GPU state
-            break;
+            case diff_op::remove_node: // NOLINT(bugprone-branch-clone)
+                // Node removed - no GPU update needed (we just don't draw it)
+                // In a real system, we might free GPU resources here
+                break;
+            case diff_op::add_child:
+            case diff_op::remove_child:
+            case diff_op::reorder_child:
+                // Child operations don't directly affect GPU state
+                break;
         }
     }
 

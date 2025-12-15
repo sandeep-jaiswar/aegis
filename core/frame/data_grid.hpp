@@ -17,31 +17,31 @@ constexpr row_id invalid_row_id = 0;
 // Grid cell data - simple POD structure for trading data
 // Designed for cache-friendly access patterns
 struct grid_cell {
-    double value{0.0};           // Numeric value (price, volume, etc.)
-    uint32_t flags{0};           // Cell state flags
-    uint32_t format_index{0};    // Index into format table (for rendering)
+    double value{0.0};        // Numeric value (price, volume, etc.)
+    uint32_t flags{0};        // Cell state flags
+    uint32_t format_index{0}; // Index into format table (for rendering)
 };
 
 // Grid row - contains stable ID and cell data
 struct grid_row {
-    row_id id{invalid_row_id};   // Stable row identifier
-    uint32_t cell_count{0};      // Number of cells in this row
-    grid_cell* cells{nullptr};   // Pointer to cell array
-    bool visible{true};          // Visibility flag (for filtering)
-    uint32_t sort_order{0};      // Current position in sorted order
+    row_id id{invalid_row_id}; // Stable row identifier
+    uint32_t cell_count{0};    // Number of cells in this row
+    grid_cell* cells{nullptr}; // Pointer to cell array
+    bool visible{true};        // Visibility flag (for filtering)
+    uint32_t sort_order{0};    // Current position in sorted order
 };
 
 // Virtual viewport - defines visible region of grid
 // Only rows within viewport need to be rendered
 struct viewport {
-    uint32_t first_visible_row{0};  // Index of first visible row
-    uint32_t visible_row_count{0};  // Number of visible rows
-    uint32_t total_rows{0};         // Total number of rows in grid
-    
+    uint32_t first_visible_row{0}; // Index of first visible row
+    uint32_t visible_row_count{0}; // Number of visible rows
+    uint32_t total_rows{0};        // Total number of rows in grid
+
     [[nodiscard]] uint32_t last_visible_row() const noexcept {
         return first_visible_row + visible_row_count;
     }
-    
+
     [[nodiscard]] bool is_visible(uint32_t row_index) const noexcept {
         return row_index >= first_visible_row && row_index < last_visible_row();
     }
@@ -49,10 +49,10 @@ struct viewport {
 
 // Grid update operation - describes a single change to grid data
 enum class update_op : uint8_t {
-    cell_value = 0,    // Cell value changed
-    row_added = 1,     // Row was added
-    row_removed = 2,   // Row was removed
-    row_visible = 3,   // Row visibility changed
+    cell_value = 0,  // Cell value changed
+    row_added = 1,   // Row was added
+    row_removed = 2, // Row was removed
+    row_visible = 3, // Row visibility changed
 };
 
 // Single grid update
@@ -66,10 +66,10 @@ struct grid_update {
 
 // Grid configuration
 struct data_grid_config {
-    uint32_t max_rows{100000};           // Maximum number of rows
-    uint32_t max_columns{100};           // Maximum number of columns
-    uint32_t max_updates{1024};          // Maximum pending updates
-    uint32_t viewport_rows{50};          // Default viewport size
+    uint32_t max_rows{100000};  // Maximum number of rows
+    uint32_t max_columns{100};  // Maximum number of columns
+    uint32_t max_updates{1024}; // Maximum pending updates
+    uint32_t viewport_rows{50}; // Default viewport size
 };
 
 // Grid result codes
@@ -214,19 +214,18 @@ class data_grid {
         view.total_rows = row_count;
 
         // Record update
-        record_update(grid_update{
-            .operation = update_op::row_added,
-            .row = new_id,
-            .column = 0,
-            .old_value = {},
-            .new_value = {}
-        });
+        record_update(grid_update{.operation = update_op::row_added,
+                                  .row = new_id,
+                                  .column = 0,
+                                  .old_value = {},
+                                  .new_value = {}});
 
         return new_id;
     }
 
     // Set cell value
-    [[nodiscard]] grid_result set_cell(row_id id, uint32_t column, const grid_cell& value) noexcept {
+    [[nodiscard]] grid_result set_cell(row_id id, uint32_t column,
+                                       const grid_cell& value) noexcept {
         if (is_frozen) {
             return grid_result::grid_frozen;
         }
@@ -247,13 +246,11 @@ class data_grid {
         row->cells[column] = value;
 
         // Record update
-        record_update(grid_update{
-            .operation = update_op::cell_value,
-            .row = id,
-            .column = column,
-            .old_value = old_value,
-            .new_value = value
-        });
+        record_update(grid_update{.operation = update_op::cell_value,
+                                  .row = id,
+                                  .column = column,
+                                  .old_value = old_value,
+                                  .new_value = value});
 
         return grid_result::success;
     }
@@ -292,10 +289,10 @@ class data_grid {
             while (j >= 0) {
                 const uint32_t compare_idx = sort_indices[j];
                 const double compare_value = rows[compare_idx].cells[column].value;
-                
-                const bool should_swap = ascending ? (compare_value > current_value) 
-                                             : (compare_value < current_value);
-                
+
+                const bool should_swap =
+                    ascending ? (compare_value > current_value) : (compare_value < current_value);
+
                 if (!should_swap) {
                     break;
                 }
@@ -316,9 +313,8 @@ class data_grid {
     // Scroll viewport to position
     void scroll_to(uint32_t first_row) noexcept {
         if (first_row + view.visible_row_count > row_count) {
-            first_row = (row_count > view.visible_row_count) 
-                ? (row_count - view.visible_row_count) 
-                : 0;
+            first_row =
+                (row_count > view.visible_row_count) ? (row_count - view.visible_row_count) : 0;
         }
         view.first_visible_row = first_row;
     }
