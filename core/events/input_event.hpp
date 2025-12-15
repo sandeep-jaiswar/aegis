@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 
 namespace aegis::core::events {
@@ -20,10 +21,13 @@ enum class input_event_type : uint8_t {
 };
 
 // Keyboard key codes (platform-agnostic)
+// Note: These values are based on common ASCII/virtual key codes for simplicity.
+// Platform adapters should map OS-specific key codes to these values.
+// For international keyboards, platform adapters handle locale-specific mappings.
 // NOLINTNEXTLINE(performance-enum-size) - uint16_t for future expansion
 enum class key_code : uint16_t {
     unknown = 0,
-    // Letters
+    // Letters (ASCII values, case-insensitive)
     a = 65,
     b = 66,
     c = 67,
@@ -242,6 +246,12 @@ struct input_event {
 };
 
 // Verify input_event is suitable for fast replay
-static_assert(sizeof(input_event) <= 64, "input_event should be compact for cache efficiency");
+// Size limit of 64 bytes ensures:
+// - Fits in a single cache line on most architectures (64-byte cache lines)
+// - Efficient memory access and iteration during event replay
+// - Minimal memory overhead for event recording
+static constexpr size_t max_input_event_size = 64;
+static_assert(sizeof(input_event) <= max_input_event_size,
+              "input_event should be compact for cache efficiency");
 
 } // namespace aegis::core::events

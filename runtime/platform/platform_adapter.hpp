@@ -57,9 +57,15 @@ class platform_adapter {
 
 // Event replay buffer for deterministic replay
 // Stores events with timestamps for exact replay
+// Note: Uses fixed-size array for simplicity. Capacity is clamped to default_capacity.
+// In production, would use arena/frame allocator for dynamic sizing.
 class event_replay_buffer {
   public:
-    explicit event_replay_buffer(size_t capacity) noexcept : max_events(capacity) {
+    // Constructor with capacity clamping
+    // If capacity > default_capacity, it will be clamped to default_capacity
+    // If capacity < default_capacity, only 'capacity' events can be stored
+    explicit event_replay_buffer(size_t capacity) noexcept
+        : max_events(capacity > default_capacity ? default_capacity : capacity) {
     }
 
     // Add event to replay buffer
@@ -85,6 +91,9 @@ class event_replay_buffer {
 
     // Replay all events through callback
     void replay_all(event_callback_fn callback, void* user_data) const noexcept {
+        if (callback == nullptr) {
+            return; // No callback registered
+        }
         for (size_t i = 0; i < event_count; ++i) {
             callback(events[i], user_data);
         }
@@ -106,6 +115,10 @@ class event_replay_buffer {
 
     [[nodiscard]] bool full() const noexcept {
         return event_count >= max_events;
+    }
+
+    [[nodiscard]] size_t capacity() const noexcept {
+        return max_events;
     }
 
   private:
