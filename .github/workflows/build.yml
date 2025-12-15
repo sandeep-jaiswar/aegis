@@ -10,9 +10,47 @@ permissions:
   contents: read
 
 jobs:
+  format-check:
+    name: Code Formatting Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Install clang-format
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang-format
+    
+    - name: Check code formatting
+      run: |
+        echo "Checking C++ code formatting with clang-format..."
+        find core -name "*.cpp" -o -name "*.hpp" | while read file; do
+          if ! diff -u "$file" <(clang-format "$file"); then
+            echo "::error file=$file::File is not formatted correctly"
+            exit 1
+          fi
+        done
+        echo "✓ All files are properly formatted"
+
+  banned-api-check:
+    name: Banned API Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Check for banned APIs
+      run: |
+        chmod +x .github/scripts/check_banned_apis.sh
+        .github/scripts/check_banned_apis.sh
+
   build:
     name: Build on ${{ matrix.os }} with ${{ matrix.compiler }}
     runs-on: ${{ matrix.os }}
+    needs: [format-check, banned-api-check]
     
     strategy:
       fail-fast: false
@@ -29,7 +67,7 @@ jobs:
       if: runner.os == 'Linux'
       run: |
         sudo apt-get update
-        sudo apt-get install -y cmake ninja-build
+        sudo apt-get install -y cmake ninja-build clang-tidy
         
     - name: Set up GCC
       if: matrix.compiler == 'gcc'

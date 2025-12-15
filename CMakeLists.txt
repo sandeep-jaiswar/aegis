@@ -30,6 +30,13 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
         $<$<CONFIG:Release>:-O3>
         $<$<CONFIG:Release>:-march=native>
     )
+    
+    # Disable RTTI and exceptions by default (hot path optimization)
+    # Individual targets can re-enable if needed
+    add_compile_options(
+        -fno-rtti
+        -fno-exceptions
+    )
 elseif(MSVC)
     add_compile_options(
         /W4
@@ -38,6 +45,12 @@ elseif(MSVC)
     
     add_compile_options(
         $<$<CONFIG:Release>:/O2>
+    )
+    
+    # Disable RTTI and exceptions on MSVC
+    add_compile_options(
+        /GR-
+        /EHsc-
     )
 endif()
 
