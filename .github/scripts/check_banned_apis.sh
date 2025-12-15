@@ -13,7 +13,7 @@ echo ""
 
 # Check for shared_ptr usage
 echo "Checking for banned std::shared_ptr usage..."
-if grep -rn --include="*.cpp" --include="*.hpp" "std::shared_ptr" "$REPO_ROOT/core" 2>/dev/null; then
+if grep -rn --include="*.cpp" --include="*.hpp" -E '\bstd::shared_ptr\b' "$REPO_ROOT/core" 2>/dev/null; then
     echo "ERROR: std::shared_ptr is banned in core/ (violates COPILOT_INSTRUCTIONS.md)"
     echo "  Use unique_ptr, raw pointers with clear ownership, or arena allocators instead"
     EXIT_CODE=1
@@ -24,7 +24,7 @@ echo ""
 
 # Check for exception throws in hot paths (simplified check)
 echo "Checking for exception throws in core/..."
-if grep -rn --include="*.cpp" --include="*.hpp" "throw " "$REPO_ROOT/core" 2>/dev/null; then
+if grep -rn --include="*.cpp" --include="*.hpp" -E '\bthrow\b' "$REPO_ROOT/core" 2>/dev/null; then
     echo "ERROR: throw statements found in core/ (exceptions banned in hot paths)"
     echo "  Use std::expected or error codes instead"
     EXIT_CODE=1
