@@ -10,12 +10,9 @@ namespace {
 using namespace aegis::core::layout;
 
 void print_box(const layout_box& box) {
-    printf("Box ID %u: pos=(%.1f, %.1f) size=(%.1f x %.1f)\n",
-           box.id,
-           box.computed_rect.pos.x.value,
-           box.computed_rect.pos.y.value,
-           box.computed_rect.sz.width.value,
-           box.computed_rect.sz.height.value);
+    printf("Box ID %u: pos=(%.1f, %.1f) size=(%.1f x %.1f)\n", box.id,
+           box.computed_rect.pos.x.value, box.computed_rect.pos.y.value,
+           box.computed_rect.sz.width.value, box.computed_rect.sz.height.value);
 }
 
 void demo_simple_layout() {
@@ -103,8 +100,7 @@ void demo_content_sized() {
 
     if (result.success) {
         printf("Layout computed successfully!\n");
-        printf("Root box sized to content: %.1f x %.1f\n",
-               boxes[0].computed_rect.sz.width.value,
+        printf("Root box sized to content: %.1f x %.1f\n", boxes[0].computed_rect.sz.width.value,
                boxes[0].computed_rect.sz.height.value);
         printf("(Expected: 210 x 70 = 80+120+10 padding, max(40,60)+10 padding)\n");
         for (size_t i = 0; i < result.box_count; ++i) {
@@ -179,7 +175,7 @@ void demo_determinism() {
     layout_engine engine1;
     layout_engine engine2;
     size available{dimension(500.0F), dimension(400.0F)};
-    
+
     layout_result result1 = engine1.compute_layout(boxes1, 2, 1, available);
     layout_result result2 = engine2.compute_layout(boxes2, 2, 1, available);
 
@@ -189,7 +185,8 @@ void demo_determinism() {
             if (boxes1[i].computed_rect.pos.x.value != boxes2[i].computed_rect.pos.x.value ||
                 boxes1[i].computed_rect.pos.y.value != boxes2[i].computed_rect.pos.y.value ||
                 boxes1[i].computed_rect.sz.width.value != boxes2[i].computed_rect.sz.width.value ||
-                boxes1[i].computed_rect.sz.height.value != boxes2[i].computed_rect.sz.height.value) {
+                boxes1[i].computed_rect.sz.height.value !=
+                    boxes2[i].computed_rect.sz.height.value) {
                 identical = false;
                 break;
             }

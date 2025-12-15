@@ -38,8 +38,8 @@ struct layout_box {
 
     constexpr layout_box() noexcept = default;
 
-    constexpr explicit layout_box(box_id id_val) noexcept 
-        : id(id_val), parent_id(invalid_box_id), first_child_id(invalid_box_id), 
+    constexpr explicit layout_box(box_id id_val) noexcept
+        : id(id_val), parent_id(invalid_box_id), first_child_id(invalid_box_id),
           next_sibling_id(invalid_box_id) {
     }
 };

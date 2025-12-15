@@ -3,10 +3,8 @@
 namespace aegis::core::frame {
 
 // Helper: Check for child relationship changes
-static diff_result check_child_changes(diff_engine* engine,
-                                       const scene_graph* prev,
-                                       const scene_graph* current,
-                                       node_id node_id_val,
+static diff_result check_child_changes(diff_engine* engine, const scene_graph* prev,
+                                       const scene_graph* current, node_id node_id_val,
                                        uint32_t& out_change_count) noexcept {
     uint32_t prev_child_count = 0;
     uint32_t curr_child_count = 0;
@@ -30,12 +28,12 @@ static diff_result check_child_changes(diff_engine* engine,
 
             if (!found) {
                 const diff_change change{.operation = diff_op::remove_child,
-                                        .node = node_id_val,
-                                        .related_node = child_id,
-                                        .old_props = {},
-                                        .new_props = {},
-                                        .old_index = j,
-                                        .new_index = 0};
+                                         .node = node_id_val,
+                                         .related_node = child_id,
+                                         .old_props = {},
+                                         .new_props = {},
+                                         .old_index = j,
+                                         .new_index = 0};
                 if (!engine->record_change(change)) {
                     out_change_count = engine->get_change_count();
                     return diff_result::change_limit_exceeded;
@@ -63,24 +61,24 @@ static diff_result check_child_changes(diff_engine* engine,
 
             if (!found) {
                 const diff_change change{.operation = diff_op::add_child,
-                                        .node = node_id_val,
-                                        .related_node = child_id,
-                                        .old_props = {},
-                                        .new_props = {},
-                                        .old_index = 0,
-                                        .new_index = j};
+                                         .node = node_id_val,
+                                         .related_node = child_id,
+                                         .old_props = {},
+                                         .new_props = {},
+                                         .old_index = 0,
+                                         .new_index = j};
                 if (!engine->record_change(change)) {
                     out_change_count = engine->get_change_count();
                     return diff_result::change_limit_exceeded;
                 }
             } else if (old_index != j) {
                 const diff_change change{.operation = diff_op::reorder_child,
-                                        .node = node_id_val,
-                                        .related_node = child_id,
-                                        .old_props = {},
-                                        .new_props = {},
-                                        .old_index = old_index,
-                                        .new_index = j};
+                                         .node = node_id_val,
+                                         .related_node = child_id,
+                                         .old_props = {},
+                                         .new_props = {},
+                                         .old_index = old_index,
+                                         .new_index = j};
                 if (!engine->record_change(change)) {
                     out_change_count = engine->get_change_count();
                     return diff_result::change_limit_exceeded;
@@ -97,9 +95,8 @@ static diff_result check_child_changes(diff_engine* engine,
 // 1. Have cost proportional to actual changes (not full tree size)
 // 2. Avoid full tree walk when changes are small
 // 3. Produce replayable change sets
-diff_result diff_engine::compute_diff(const scene_graph* prev,
-                                     const scene_graph* current,
-                                     uint32_t& out_change_count) noexcept {
+diff_result diff_engine::compute_diff(const scene_graph* prev, const scene_graph* current,
+                                      uint32_t& out_change_count) noexcept {
     // Reset state
     clear();
 
@@ -138,12 +135,12 @@ diff_result diff_engine::compute_diff(const scene_graph* prev,
         if (curr_node == nullptr) {
             // Node was removed
             const diff_change change{.operation = diff_op::remove_node,
-                                    .node = prev_id,
-                                    .related_node = prev_node->parent_id,
-                                    .old_props = prev_node->props,
-                                    .new_props = {},
-                                    .old_index = 0,
-                                    .new_index = 0};
+                                     .node = prev_id,
+                                     .related_node = prev_node->parent_id,
+                                     .old_props = prev_node->props,
+                                     .new_props = {},
+                                     .old_index = 0,
+                                     .new_index = 0};
             if (!record_change(change)) {
                 out_change_count = change_count;
                 return diff_result::change_limit_exceeded;
@@ -152,12 +149,12 @@ diff_result diff_engine::compute_diff(const scene_graph* prev,
             // Check for property changes
             if (!props_equal(prev_node->props, curr_node->props)) {
                 const diff_change change{.operation = diff_op::update_props,
-                                        .node = prev_id,
-                                        .related_node = invalid_node_id,
-                                        .old_props = prev_node->props,
-                                        .new_props = curr_node->props,
-                                        .old_index = 0,
-                                        .new_index = 0};
+                                         .node = prev_id,
+                                         .related_node = invalid_node_id,
+                                         .old_props = prev_node->props,
+                                         .new_props = curr_node->props,
+                                         .old_index = 0,
+                                         .new_index = 0};
                 if (!record_change(change)) {
                     out_change_count = change_count;
                     return diff_result::change_limit_exceeded;
@@ -180,12 +177,12 @@ diff_result diff_engine::compute_diff(const scene_graph* prev,
         if (node != nullptr && node->is_valid()) {
             if (!node_existed(node->id)) {
                 const diff_change change{.operation = diff_op::add_node,
-                                        .node = node->id,
-                                        .related_node = node->parent_id,
-                                        .old_props = {},
-                                        .new_props = node->props,
-                                        .old_index = 0,
-                                        .new_index = 0};
+                                         .node = node->id,
+                                         .related_node = node->parent_id,
+                                         .old_props = {},
+                                         .new_props = node->props,
+                                         .old_index = 0,
+                                         .new_index = 0};
                 if (!record_change(change)) {
                     out_change_count = change_count;
                     return diff_result::change_limit_exceeded;

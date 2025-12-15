@@ -32,31 +32,28 @@ struct dimension {
 
 // Size constraint - specifies how a box should be sized
 enum class size_constraint : uint8_t {
-    fixed = 0,      // Fixed size (width/height exactly specified)
-    min = 1,        // Minimum size (can grow)
-    max = 2,        // Maximum size (can shrink)
-    fill = 3,       // Fill available space
-    content = 4     // Size based on content
+    fixed = 0,  // Fixed size (width/height exactly specified)
+    min = 1,    // Minimum size (can grow)
+    max = 2,    // Maximum size (can shrink)
+    fill = 3,   // Fill available space
+    content = 4 // Size based on content
 };
 
 // Alignment within parent
 enum class alignment : uint8_t {
-    start = 0,      // Align to start (left/top)
-    center = 1,     // Center
-    end = 2,        // Align to end (right/bottom)
-    stretch = 3     // Stretch to fill
+    start = 0,  // Align to start (left/top)
+    center = 1, // Center
+    end = 2,    // Align to end (right/bottom)
+    stretch = 3 // Stretch to fill
 };
 
 // Layout direction
-enum class direction : uint8_t {
-    horizontal = 0,
-    vertical = 1
-};
+enum class direction : uint8_t { horizontal = 0, vertical = 1 };
 
 // Box constraints - defines how a box can be sized
 struct box_constraints {
     dimension min_width{0.0F};
-    dimension max_width{10000.0F};  // Reasonable default max
+    dimension max_width{10000.0F}; // Reasonable default max
     dimension min_height{0.0F};
     dimension max_height{10000.0F};
 
@@ -128,7 +125,8 @@ struct padding {
     dimension bottom{0.0F};
 
     constexpr padding() noexcept = default;
-    constexpr explicit padding(dimension all) noexcept : left(all), right(all), top(all), bottom(all) {
+    constexpr explicit padding(dimension all) noexcept
+        : left(all), right(all), top(all), bottom(all) {
     }
     constexpr padding(dimension l, dimension r, dimension t, dimension b) noexcept
         : left(l), right(r), top(t), bottom(b) {
