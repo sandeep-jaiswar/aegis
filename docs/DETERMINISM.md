@@ -682,7 +682,10 @@ If a feature must be deprecated:
 ### 15.2 External References
 
 - IEEE 754-2008 Floating-Point Standard
-- C++23 Standard (deterministic behavior)
+- ISO/IEC 14882:2023 C++ Standard
+  - Section 6.8.1: Sequential execution (deterministic program execution)
+  - Section 7.7: Fundamental types (fixed sizes via `<cstdint>`)
+  - Annex C: Compatibility (stable ABI for POD types)
 - "The Art of Computer Systems Performance Analysis" - Jain (1991)
 - "Principles of Transaction Processing" - Bernstein & Newcomer (2009)
 

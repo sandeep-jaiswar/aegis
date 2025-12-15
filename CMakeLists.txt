@@ -37,6 +37,13 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
         -fno-rtti
         -fno-exceptions
     )
+    
+    # Ensure deterministic floating-point behavior (IEEE 754 compliance)
+    # Required for determinism guarantees (see docs/DETERMINISM.md)
+    add_compile_options(
+        -fno-fast-math
+        -ffp-contract=off
+    )
 elseif(MSVC)
     add_compile_options(
         /W4

@@ -722,8 +722,16 @@ All fallible operations MUST return explicit result codes.
 
 ### 11.1 Language Standard
 
-- C++23 or later
+- C++23 (ISO/IEC 14882:2023) or later
+- Minimum compiler versions with sufficient C++23 support:
+  - GCC 13.0 or higher
+  - Clang 18.0 or higher
+  - MSVC 19.35 (Visual Studio 2022 17.5) or higher
 - Standard library subset (no exceptions, no RTTI)
+- Note: The specification uses C++23 features including:
+  - `import std` modules (optional, traditional headers acceptable)
+  - Range-based `std::expected` for error handling (optional)
+  - Portable fixed-width integer types from `<cstdint>`
 
 ### 11.2 Compiler Flags
 
@@ -731,11 +739,13 @@ All fallible operations MUST return explicit result codes.
 - `-std=c++23`
 - `-fno-exceptions`
 - `-fno-rtti`
+- `-fno-fast-math` (preserves IEEE 754 determinism)
+- `-ffp-contract=off` (disables FP contraction, ensures deterministic FP operations)
 - `-Wall -Wextra -Werror`
 
 **Recommended:**
 - `-O3` (release builds)
-- `-march=native` (architecture-specific optimizations)
+- `-march=native` (architecture-specific optimizations, determinism preserved within same architecture)
 
 ### 11.3 Dependencies
 
