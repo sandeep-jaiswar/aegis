@@ -57,8 +57,10 @@ endif()
 # Build core library (standalone, no runtime/OS dependencies)
 add_subdirectory(core)
 
-# Runtime, app, tools, tests can be added later
-# add_subdirectory(runtime)
+# Build runtime library (platform abstraction, OS integration)
+add_subdirectory(runtime)
+
+# App, tools, tests can be added later
 # add_subdirectory(app)
 # add_subdirectory(tools)
 # add_subdirectory(tests)

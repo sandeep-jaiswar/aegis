@@ -22,7 +22,8 @@ layout_box* layout_engine::find_box(layout_box* boxes, size_t box_count, box_id 
     return nullptr;
 }
 
-const layout_box* layout_engine::find_box(const layout_box* boxes, size_t box_count, box_id id) noexcept {
+const layout_box* layout_engine::find_box(const layout_box* boxes, size_t box_count,
+                                          box_id id) noexcept {
     if (id == invalid_box_id) {
         return nullptr;
     }
@@ -96,7 +97,7 @@ size layout_engine::compute_box_size(const layout_box& box, size available) noex
 }
 
 size layout_engine::compute_children_size(const layout_box* boxes, size_t box_count,
-                                         const layout_box& parent) noexcept {
+                                          const layout_box& parent) noexcept {
     size total{};
 
     box_id child_id = parent.first_child_id;
@@ -126,7 +127,7 @@ size layout_engine::compute_children_size(const layout_box* boxes, size_t box_co
 }
 
 void layout_engine::compute_sizes(layout_box* boxes, size_t box_count, box_id current_id,
-                                 size available) noexcept {  // NOLINT(misc-no-recursion)
+                                  size available) noexcept { // NOLINT(misc-no-recursion)
     layout_box* box = find_box(boxes, box_count, current_id);
     if (box == nullptr) {
         return;
@@ -136,10 +137,8 @@ void layout_engine::compute_sizes(layout_box* boxes, size_t box_count, box_id cu
     box_id child_id = box->first_child_id;
     while (child_id != invalid_box_id) {
         // Pass available space minus padding to children
-        const size child_available{
-            available.width - box->pad.horizontal(),
-            available.height - box->pad.vertical()
-        };
+        const size child_available{available.width - box->pad.horizontal(),
+                                   available.height - box->pad.vertical()};
         compute_sizes(boxes, box_count, child_id, child_available);
 
         const layout_box* child = find_box(boxes, box_count, child_id);
@@ -155,11 +154,11 @@ void layout_engine::compute_sizes(layout_box* boxes, size_t box_count, box_id cu
         box->constraints.height_constraint == size_constraint::content) {
         // Update content_size based on children
         const size children_sz = compute_children_size(boxes, box_count, *box);
-        
+
         if (box->constraints.width_constraint == size_constraint::content) {
             box->content_size.width = children_sz.width + box->pad.horizontal();
         }
-        
+
         if (box->constraints.height_constraint == size_constraint::content) {
             box->content_size.height = children_sz.height + box->pad.vertical();
         }
@@ -172,7 +171,7 @@ void layout_engine::compute_sizes(layout_box* boxes, size_t box_count, box_id cu
 }
 
 void layout_engine::compute_positions(layout_box* boxes, size_t box_count, box_id current_id,
-                                     position parent_pos) noexcept {  // NOLINT(misc-no-recursion)
+                                      position parent_pos) noexcept { // NOLINT(misc-no-recursion)
     layout_box* box = find_box(boxes, box_count, current_id);
     if (box == nullptr) {
         return;
@@ -228,8 +227,8 @@ void layout_engine::compute_positions(layout_box* boxes, size_t box_count, box_i
     }
 }
 
-layout_result layout_engine::compute_layout(layout_box* boxes, size_t box_count,
-                                           box_id root_id, size available_space) noexcept {
+layout_result layout_engine::compute_layout(layout_box* boxes, size_t box_count, box_id root_id,
+                                            size available_space) noexcept {
     layout_result result{};
 
     if (boxes == nullptr || box_count == 0) {

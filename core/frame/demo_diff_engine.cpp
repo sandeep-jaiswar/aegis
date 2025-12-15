@@ -11,20 +11,20 @@ using namespace aegis::core::memory;
 // Helper to print diff operation name
 static const char* diff_op_name(diff_op op) {
     switch (op) {
-    case diff_op::add_node:
-        return "ADD_NODE";
-    case diff_op::remove_node:
-        return "REMOVE_NODE";
-    case diff_op::update_props:
-        return "UPDATE_PROPS";
-    case diff_op::add_child:
-        return "ADD_CHILD";
-    case diff_op::remove_child:
-        return "REMOVE_CHILD";
-    case diff_op::reorder_child:
-        return "REORDER_CHILD";
-    default:
-        return "UNKNOWN";
+        case diff_op::add_node:
+            return "ADD_NODE";
+        case diff_op::remove_node:
+            return "REMOVE_NODE";
+        case diff_op::update_props:
+            return "UPDATE_PROPS";
+        case diff_op::add_child:
+            return "ADD_CHILD";
+        case diff_op::remove_child:
+            return "REMOVE_CHILD";
+        case diff_op::reorder_child:
+            return "REORDER_CHILD";
+        default:
+            return "UNKNOWN";
     }
 }
 
@@ -84,8 +84,11 @@ int main() {
     // ========== Frame 0: Build initial scene ==========
     printf("2. Frame 0: Build initial scene\n");
 
-    node_properties rect_props{
-        .x = 10.0F, .y = 10.0F, .width = 100.0F, .height = 50.0F, .color = 0xFF0000FF};
+    node_properties rect_props{.x = 10.0F,
+                               .y = 10.0F,
+                               .width = 100.0F,
+                               .height = 50.0F,
+                               .color = 0xFF0000FF};
     node_id rect_id = prev_frame.create_node(node_type::rectangle, rect_props);
     (void)prev_frame.add_child(root_node_id, rect_id);
     prev_frame.freeze();
@@ -162,8 +165,11 @@ int main() {
     rect_id = curr_frame.create_node(node_type::rectangle, rect_props);
     (void)curr_frame.add_child(root_node_id, rect_id);
 
-    node_properties text_props{
-        .x = 10.0F, .y = 70.0F, .width = 200.0F, .height = 30.0F, .color = 0x000000FF};
+    node_properties text_props{.x = 10.0F,
+                               .y = 70.0F,
+                               .width = 200.0F,
+                               .height = 30.0F,
+                               .color = 0x000000FF};
     node_id text_id = curr_frame.create_node(node_type::text, text_props);
     (void)curr_frame.add_child(root_node_id, text_id);
     curr_frame.freeze();
@@ -219,8 +225,11 @@ int main() {
     printf("7. Frame 5: Complex scene with multiple changes\n");
 
     // Previous frame: Container with rect and text
-    node_properties container_props{
-        .x = 0.0F, .y = 0.0F, .width = 800.0F, .height = 600.0F, .color = 0xFFFFFFFF};
+    node_properties container_props{.x = 0.0F,
+                                    .y = 0.0F,
+                                    .width = 800.0F,
+                                    .height = 600.0F,
+                                    .color = 0xFFFFFFFF};
     node_id container_id = prev_frame.create_node(node_type::container, container_props);
     rect_id = prev_frame.create_node(node_type::rectangle, rect_props);
     text_id = prev_frame.create_node(node_type::text, text_props);
@@ -235,8 +244,11 @@ int main() {
     container_id = curr_frame.create_node(node_type::container, container_props);
     rect_id = curr_frame.create_node(node_type::rectangle, rect_props);
 
-    node_properties image_props{
-        .x = 200.0F, .y = 200.0F, .width = 64.0F, .height = 64.0F, .color = 0xFFFFFFFF};
+    node_properties image_props{.x = 200.0F,
+                                .y = 200.0F,
+                                .width = 64.0F,
+                                .height = 64.0F,
+                                .color = 0xFFFFFFFF};
     node_id image_id = curr_frame.create_node(node_type::image, image_props);
 
     (void)curr_frame.add_child(root_node_id, container_id);

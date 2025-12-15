@@ -10,12 +10,12 @@ namespace aegis::core::frame {
 
 // Diff operation types - minimal set of operations to replay changes
 enum class diff_op : uint8_t {
-    add_node = 0,      // Node was added
-    remove_node = 1,   // Node was removed
-    update_props = 2,  // Node properties changed
-    add_child = 3,     // Child relationship added
-    remove_child = 4,  // Child relationship removed
-    reorder_child = 5  // Child order changed
+    add_node = 0,     // Node was added
+    remove_node = 1,  // Node was removed
+    update_props = 2, // Node properties changed
+    add_child = 3,    // Child relationship added
+    remove_child = 4, // Child relationship removed
+    reorder_child = 5 // Child order changed
 };
 
 // Single diff operation - represents one atomic change
@@ -109,8 +109,7 @@ class diff_engine {
     // Compute diff between previous and current scene graphs
     // Returns diff_result indicating success or failure
     // Change count is stored in out_change_count
-    [[nodiscard]] diff_result compute_diff(const scene_graph* prev,
-                                           const scene_graph* current,
+    [[nodiscard]] diff_result compute_diff(const scene_graph* prev, const scene_graph* current,
                                            uint32_t& out_change_count) noexcept;
 
     // Get computed changes (read-only access)
@@ -144,7 +143,6 @@ class diff_engine {
     }
 
   private:
-
     // Check if node ID exists in previous graph
     [[nodiscard]] bool node_existed(node_id id) const noexcept {
         for (uint32_t i = 0; i < prev_node_count; ++i) {
