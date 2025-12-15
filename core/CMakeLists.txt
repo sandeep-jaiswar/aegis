@@ -289,5 +289,11 @@ if(BUILD_BROWSER_COMPARISON_DEMO)
     endif()
 endif()
 
+# Optional: Build module format demo executable
+option(BUILD_MODULE_DEMO "Build .aegis module format demonstration" ON)
+if(BUILD_MODULE_DEMO)
+    add_subdirectory(module)
+endif()
+
 # Ensure no OS/runtime headers are included in core
 # This is enforced by the compile-time checks and architecture contract
