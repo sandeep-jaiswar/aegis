@@ -39,3 +39,26 @@
 
 # debug information files
 *.dwo
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+cmake_install.cmake
+install_manifest.txt
+CTestTestfile.cmake
+_deps/
+build/
+out/
+cmake-build-*/
+
+# CodeQL
+_codeql_build_dir/
+_codeql_detected_source_root
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
