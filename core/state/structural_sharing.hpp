@@ -101,14 +101,14 @@ class shared_data {
     }
 
     // Default constructor - null data
-    shared_data() noexcept : block_(nullptr), allocator_(nullptr) {
+    shared_data() noexcept : block(nullptr), allocator(nullptr) {
     }
 
     // Copy constructor - increment reference count (explicit sharing)
     shared_data(const shared_data& other) noexcept
-        : block_(other.block_), allocator_(other.allocator_) {
-        if (block_ != nullptr) {
-            block_->add_ref();
+        : block(other.block), allocator(other.allocator) {
+        if (block != nullptr) {
+            block->add_ref();
         }
     }
 
@@ -116,29 +116,29 @@ class shared_data {
     shared_data& operator=(const shared_data& other) noexcept {
         if (this != &other) {
             release();
-            block_ = other.block_;
-            allocator_ = other.allocator_;
-            if (block_ != nullptr) {
-                block_->add_ref();
+            block = other.block;
+            allocator = other.allocator;
+            if (block != nullptr) {
+                block->add_ref();
             }
         }
         return *this;
     }
 
     // Move constructor - transfer ownership
-    shared_data(shared_data&& other) noexcept : block_(other.block_), allocator_(other.allocator_) {
-        other.block_ = nullptr;
-        other.allocator_ = nullptr;
+    shared_data(shared_data&& other) noexcept : block(other.block), allocator(other.allocator) {
+        other.block = nullptr;
+        other.allocator = nullptr;
     }
 
     // Move assignment - transfer ownership
     shared_data& operator=(shared_data&& other) noexcept {
         if (this != &other) {
             release();
-            block_ = other.block_;
-            allocator_ = other.allocator_;
-            other.block_ = nullptr;
-            other.allocator_ = nullptr;
+            block = other.block;
+            allocator = other.allocator;
+            other.block = nullptr;
+            other.allocator = nullptr;
         }
         return *this;
     }
@@ -150,41 +150,41 @@ class shared_data {
 
     // Access data (read-only to enforce immutability)
     [[nodiscard]] const T* get() const noexcept {
-        return block_ ? &block_->data : nullptr;
+        return block ? &block->data : nullptr;
     }
 
     [[nodiscard]] const T& operator*() const noexcept {
-        return block_->data;
+        return block->data;
     }
 
     [[nodiscard]] const T* operator->() const noexcept {
-        return &block_->data;
+        return &block->data;
     }
 
     // Check if data is valid
     [[nodiscard]] bool is_valid() const noexcept {
-        return block_ != nullptr;
+        return block != nullptr;
     }
 
     // Check if this is the unique owner (can safely modify)
     [[nodiscard]] bool is_unique() const noexcept {
-        return block_ && block_->is_unique();
+        return block && block->is_unique();
     }
 
     // Get reference count (explicit tracking)
     [[nodiscard]] uint32_t ref_count() const noexcept {
-        return block_ ? block_->ref_count() : 0;
+        return block ? block->ref_count() : 0;
     }
 
     // Copy-on-write: get mutable data, copying if shared
     [[nodiscard]] T* get_mut() noexcept {
-        if (block_ == nullptr) {
+        if (block == nullptr) {
             return nullptr;
         }
 
-        if (block_->is_unique()) {
+        if (block->is_unique()) {
             // We're the only owner - can modify directly
-            return &block_->data;
+            return &block->data;
         }
 
         // Multiple owners - must copy before modifying
@@ -193,17 +193,17 @@ class shared_data {
 
     // Explicit clone operation for copy-on-write
     [[nodiscard]] shared_data clone() const noexcept {
-        if (block_ == nullptr || allocator_ == nullptr) {
+        if (block == nullptr || allocator == nullptr) {
             return shared_data();
         }
 
         // Create new independent copy
-        return create(block_->data, allocator_);
+        return create(block->data, allocator);
     }
 
     // Calculate bytes used by structural sharing
     [[nodiscard]] size_t shared_bytes() const noexcept {
-        if (block_ == nullptr || block_->is_unique()) {
+        if (block == nullptr || block->is_unique()) {
             return 0; // Not shared
         }
         return sizeof(T);
@@ -211,23 +211,23 @@ class shared_data {
 
   private:
     explicit shared_data(shared_block<T>* block, memory::allocator* alloc) noexcept
-        : block_(block), allocator_(alloc) {
+        : block(block), allocator(alloc) {
     }
 
     void release() noexcept {
-        if (block_ != nullptr && block_->release()) {
+        if (block != nullptr && block->release()) {
             // Last reference - deallocate
-            if (allocator_ != nullptr) {
+            if (allocator != nullptr) {
                 // No explicit destructor call needed for POD-style types
-                allocator_->deallocate(block_, sizeof(shared_block<T>));
+                allocator->deallocate(block, sizeof(shared_block<T>));
             }
         }
-        block_ = nullptr;
-        allocator_ = nullptr;
+        block = nullptr;
+        allocator = nullptr;
     }
 
-    shared_block<T>* block_;
-    memory::allocator* allocator_;
+    shared_block<T>* block;
+    memory::allocator* allocator;
 };
 
 // Utility to calculate structural sharing statistics

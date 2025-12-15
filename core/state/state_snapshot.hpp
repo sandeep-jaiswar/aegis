@@ -20,12 +20,12 @@ template <typename T>
 class state_snapshot {
   public:
     // Construct initial snapshot with default state
-    state_snapshot() noexcept : version_(0), data_{} {
+    state_snapshot() noexcept : version_num(0), state_data{} {
     }
 
     // Construct snapshot with specific data and version
     explicit state_snapshot(T data, state_version version = 0) noexcept
-        : version_(version), data_(data) {
+        : version_num(version), state_data(data) {
     }
 
     // Copy and move are allowed - snapshots are immutable value types
@@ -38,33 +38,33 @@ class state_snapshot {
 
     // Get state version - identifies this snapshot in the state timeline
     [[nodiscard]] state_version version() const noexcept {
-        return version_;
+        return version_num;
     }
 
     // Access state data (read-only)
     // This enforces immutability - data cannot be modified
     [[nodiscard]] const T& data() const noexcept {
-        return data_;
+        return state_data;
     }
 
     // Check if this snapshot is newer than another
     [[nodiscard]] bool is_newer_than(const state_snapshot& other) const noexcept {
-        return version_ > other.version_;
+        return version_num > other.version_num;
     }
 
     // Check if this snapshot is older than another
     [[nodiscard]] bool is_older_than(const state_snapshot& other) const noexcept {
-        return version_ < other.version_;
+        return version_num < other.version_num;
     }
 
     // Check if snapshots are from same version
     [[nodiscard]] bool is_same_version(const state_snapshot& other) const noexcept {
-        return version_ == other.version_;
+        return version_num == other.version_num;
     }
 
   private:
-    state_version version_;
-    T data_;
+    state_version version_num;
+    T state_data;
 };
 
 // State snapshot metadata - tracks snapshot provenance and relationships
@@ -98,36 +98,36 @@ struct snapshot_metadata {
 template <typename T>
 class tracked_snapshot {
   public:
-    tracked_snapshot() noexcept : snapshot_(), metadata_{} {
+    tracked_snapshot() noexcept : snapshot_data(), metadata_data{} {
     }
 
     explicit tracked_snapshot(state_snapshot<T> snapshot, snapshot_metadata metadata) noexcept
-        : snapshot_(snapshot), metadata_(metadata) {
+        : snapshot_data(snapshot), metadata_data(metadata) {
     }
 
     // Access the underlying snapshot
     [[nodiscard]] const state_snapshot<T>& snapshot() const noexcept {
-        return snapshot_;
+        return snapshot_data;
     }
 
     // Access metadata
     [[nodiscard]] const snapshot_metadata& metadata() const noexcept {
-        return metadata_;
+        return metadata_data;
     }
 
     // Get state version (convenience)
     [[nodiscard]] state_version version() const noexcept {
-        return snapshot_.version();
+        return snapshot_data.version();
     }
 
     // Access state data (convenience)
     [[nodiscard]] const T& data() const noexcept {
-        return snapshot_.data();
+        return snapshot_data.data();
     }
 
   private:
-    state_snapshot<T> snapshot_;
-    snapshot_metadata metadata_;
+    state_snapshot<T> snapshot_data;
+    snapshot_metadata metadata_data;
 };
 
 } // namespace aegis::core::state
