@@ -43,5 +43,18 @@ elseif(MSVC)
     )
 endif()
 
+# Enable clang-tidy for static analysis
+option(ENABLE_CLANG_TIDY "Enable clang-tidy static analysis" ON)
+if(ENABLE_CLANG_TIDY)
+    find_program(CLANG_TIDY_EXE NAMES "clang-tidy")
+    if(CLANG_TIDY_EXE)
+        set(CLANG_TIDY_COMMAND "${CLANG_TIDY_EXE}")
+        set_target_properties(aegis_core PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_COMMAND}")
+        message(STATUS "clang-tidy enabled for aegis_core")
+    else()
+        message(WARNING "clang-tidy requested but not found")
+    endif()
+endif()
+
 # Ensure no OS/runtime headers are included in core
 # This is enforced by the compile-time checks and architecture contract
