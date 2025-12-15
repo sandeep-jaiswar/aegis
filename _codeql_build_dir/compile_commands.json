@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/home/runner/work/aegis/aegis/_codeql_build_dir/core",
+  "command": "/home/runner/work/aegis/.codeql-scratch/dbs/cpp/working/autobuild/bin/c++  -I/home/runner/work/aegis/aegis/core/.. -O3 -DNDEBUG -std=c++23 -Wall -Wextra -Wpedantic -Werror -O3 -march=native -o CMakeFiles/aegis_core.dir/version.cpp.o -c /home/runner/work/aegis/aegis/core/version.cpp",
+  "file": "/home/runner/work/aegis/aegis/core/version.cpp",
+  "output": "core/CMakeFiles/aegis_core.dir/version.cpp.o"
+}
+]
