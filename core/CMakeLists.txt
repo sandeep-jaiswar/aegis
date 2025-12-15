@@ -220,5 +220,28 @@ if(BUILD_GPU_COMMAND_DEMO)
     endif()
 endif()
 
+# Optional: Build data grid demo executable
+option(BUILD_DATA_GRID_DEMO "Build high-density data grid demonstration" ON)
+if(BUILD_DATA_GRID_DEMO)
+    add_executable(data_grid_demo frame/demo_data_grid.cpp)
+    target_link_libraries(data_grid_demo PRIVATE aegis_core)
+    target_compile_features(data_grid_demo PRIVATE cxx_std_23)
+    
+    # Compiler-specific flags for demo
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(data_grid_demo PRIVATE
+            -Wall
+            -Wextra
+            -Wpedantic
+            $<$<CONFIG:Release>:-O3>
+        )
+    elseif(MSVC)
+        target_compile_options(data_grid_demo PRIVATE
+            /W4
+            $<$<CONFIG:Release>:/O2>
+        )
+    endif()
+endif()
+
 # Ensure no OS/runtime headers are included in core
 # This is enforced by the compile-time checks and architecture contract
