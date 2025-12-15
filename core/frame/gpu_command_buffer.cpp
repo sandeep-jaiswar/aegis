@@ -147,50 +147,22 @@ gpu_command_result gpu_command_buffer::translate_diff(const diff_change* changes
     // Second pass: Generate draw calls with batching
     // We batch draws by pipeline to minimize state changes
 
-    // Collect all nodes that need to be drawn
-    struct draw_node {
-        const scene_node* node;
-        uint32_t pipeline_id;
-    };
+    // Walk scene graph and generate batched draw calls
+    const uint32_t scene_node_count = current_scene->count();
+    bool in_batch = false;
 
-    // Temporary storage for nodes to draw (limited by max_commands)
-    // Currently unused but kept for future optimization when we implement proper batching
-    [[maybe_unused]] draw_node* nodes_to_draw = nullptr;
-    uint32_t node_count = 0;
-
-    // Allocate temporary storage from our command buffer space
-    // (we'll use unused command slots temporarily)
-    const uint32_t max_draw_nodes = cfg.max_commands - command_count;
-    if (max_draw_nodes > 0) {
-        // Walk scene graph to find all renderable nodes
-        const uint32_t scene_node_count = current_scene->count();
-        for (uint32_t i = 0; i < scene_node_count && node_count < max_draw_nodes; ++i) {
-            const scene_node* node = current_scene->get_node_by_index(i);
-            if (node != nullptr && node->is_valid() && node->type != node_type::container) {
-                // This is a dummy implementation - in real code we'd properly track
-                // which nodes to draw. For now we just show the batching structure.
-                node_count++;
-            }
-        }
-    }
-
-    // Sort nodes by pipeline (in production, use a stable sort)
-    // For now, we just generate draws in order
-
-    // Generate batched draw calls
-    uint32_t batch_start = 0;
-    for (uint32_t i = 0; i < node_count; ++i) {
+    for (uint32_t i = 0; i < scene_node_count; ++i) {
         const scene_node* node = current_scene->get_node_by_index(i);
-        if (node == nullptr) {
-            continue;
+        if (node == nullptr || !node->is_valid() || node->type == node_type::container) {
+            continue; // Skip invalid nodes and containers (they don't render)
         }
 
         const uint32_t pipeline_id = get_pipeline_id_for_node(node->type);
 
         // Check if we need to switch pipeline
         if (pipeline_id != current_pipeline) {
-            // End previous batch if any
-            if (i > batch_start && (i - batch_start) > 1) {
+            // End previous batch if one is active
+            if (in_batch) {
                 const gpu_command end_batch = gpu_command::create_end_batch();
                 const gpu_command_result result = add_command(end_batch);
                 if (result != gpu_command_result::success) {
@@ -208,7 +180,6 @@ gpu_command_result gpu_command_buffer::translate_diff(const diff_change* changes
             }
 
             current_pipeline = pipeline_id;
-            batch_start = i;
 
             // Begin new batch
             const gpu_command begin_batch = gpu_command::create_begin_batch(1);
@@ -216,6 +187,7 @@ gpu_command_result gpu_command_buffer::translate_diff(const diff_change* changes
             if (batch_result != gpu_command_result::success) {
                 return batch_result;
             }
+            in_batch = true;
         }
 
         // Add draw call
@@ -228,8 +200,8 @@ gpu_command_result gpu_command_buffer::translate_diff(const diff_change* changes
         }
     }
 
-    // End final batch
-    if (node_count > batch_start && (node_count - batch_start) > 1) {
+    // End final batch if one is active
+    if (in_batch) {
         const gpu_command end_batch = gpu_command::create_end_batch();
         const gpu_command_result result = add_command(end_batch);
         if (result != gpu_command_result::success) {

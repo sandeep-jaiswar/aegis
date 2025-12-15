@@ -64,6 +64,7 @@ class gpu_command_buffer {
         void* commands_mem = allocator->allocate(commands_size, alignof(gpu_command));
         if (commands_mem != nullptr) {
             commands = static_cast<gpu_command*>(commands_mem);
+            // Initialize all commands
             for (uint32_t i = 0; i < cfg.max_commands; ++i) {
                 commands[i] = gpu_command{};
             }
@@ -74,6 +75,7 @@ class gpu_command_buffer {
             allocator->allocate(cfg.max_buffer_data_bytes, alignof(float));
         if (buffer_data_mem != nullptr) {
             buffer_data = static_cast<uint8_t*>(buffer_data_mem);
+            // Zero-initialize buffer data
             for (uint32_t i = 0; i < cfg.max_buffer_data_bytes; ++i) {
                 buffer_data[i] = 0;
             }
