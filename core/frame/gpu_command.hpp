@@ -10,13 +10,13 @@ namespace aegis::core::frame {
 
 // GPU command types - minimal set for efficient rendering
 enum class gpu_command_type : uint8_t {
-    noop = 0,               // No operation (padding)
-    update_buffer = 1,      // Update vertex/uniform buffer
-    draw_indexed = 2,       // Indexed draw call
-    set_pipeline = 3,       // Set graphics pipeline state
-    begin_batch = 4,        // Begin batched draw sequence
-    end_batch = 5,          // End batched draw sequence
-    sync_point = 6          // CPU↔GPU synchronization point
+    noop = 0,          // No operation (padding)
+    update_buffer = 1, // Update vertex/uniform buffer
+    draw_indexed = 2,  // Indexed draw call
+    set_pipeline = 3,  // Set graphics pipeline state
+    begin_batch = 4,   // Begin batched draw sequence
+    end_batch = 5,     // End batched draw sequence
+    sync_point = 6     // CPU↔GPU synchronization point
 };
 
 // GPU buffer update descriptor
@@ -31,19 +31,19 @@ struct gpu_buffer_update {
 // GPU draw call descriptor
 // Represents a single indexed draw call
 struct gpu_draw_indexed {
-    uint32_t index_count{0};     // Number of indices
-    uint32_t instance_count{1};  // Number of instances
-    uint32_t first_index{0};     // First index in index buffer
-    int32_t vertex_offset{0};    // Offset added to vertex index
-    uint32_t first_instance{0};  // First instance ID
+    uint32_t index_count{0};    // Number of indices
+    uint32_t instance_count{1}; // Number of instances
+    uint32_t first_index{0};    // First index in index buffer
+    int32_t vertex_offset{0};   // Offset added to vertex index
+    uint32_t first_instance{0}; // First instance ID
 };
 
 // GPU pipeline state descriptor
 // Represents graphics pipeline configuration
 struct gpu_pipeline_state {
-    uint32_t pipeline_id{0};      // Pipeline identifier
-    uint32_t vertex_buffer_id{0}; // Vertex buffer binding
-    uint32_t index_buffer_id{0};  // Index buffer binding
+    uint32_t pipeline_id{0};       // Pipeline identifier
+    uint32_t vertex_buffer_id{0};  // Vertex buffer binding
+    uint32_t index_buffer_id{0};   // Index buffer binding
     uint32_t uniform_buffer_id{0}; // Uniform buffer binding
 };
 
@@ -69,7 +69,7 @@ struct gpu_command {
 
     // Create buffer update command
     static gpu_command create_buffer_update(uint32_t buffer_id, uint32_t offset, uint32_t size,
-                                           const void* data) noexcept {
+                                            const void* data) noexcept {
         gpu_command cmd;
         cmd.type = gpu_command_type::update_buffer;
         cmd.buffer_update = {buffer_id, offset, size, data};
@@ -78,8 +78,8 @@ struct gpu_command {
 
     // Create draw command
     static gpu_command create_draw_indexed(uint32_t index_count, uint32_t instance_count = 1,
-                                          uint32_t first_index = 0, int32_t vertex_offset = 0,
-                                          uint32_t first_instance = 0) noexcept {
+                                           uint32_t first_index = 0, int32_t vertex_offset = 0,
+                                           uint32_t first_instance = 0) noexcept {
         gpu_command cmd;
         cmd.type = gpu_command_type::draw_indexed;
         cmd.draw_indexed = {index_count, instance_count, first_index, vertex_offset,
@@ -89,8 +89,8 @@ struct gpu_command {
 
     // Create pipeline state command
     static gpu_command create_set_pipeline(uint32_t pipeline_id, uint32_t vertex_buffer_id = 0,
-                                          uint32_t index_buffer_id = 0,
-                                          uint32_t uniform_buffer_id = 0) noexcept {
+                                           uint32_t index_buffer_id = 0,
+                                           uint32_t uniform_buffer_id = 0) noexcept {
         gpu_command cmd;
         cmd.type = gpu_command_type::set_pipeline;
         cmd.pipeline_state = {pipeline_id, vertex_buffer_id, index_buffer_id, uniform_buffer_id};

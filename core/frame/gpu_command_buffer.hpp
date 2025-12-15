@@ -12,7 +12,7 @@ namespace aegis::core::frame {
 
 // GPU command buffer configuration
 struct gpu_command_buffer_config {
-    uint32_t max_commands{4096};       // Maximum GPU commands per frame
+    uint32_t max_commands{4096};           // Maximum GPU commands per frame
     uint32_t max_buffer_data_bytes{65536}; // Maximum buffer update data (64KB)
 };
 
@@ -53,7 +53,7 @@ class gpu_command_buffer {
   public:
     // Create command buffer with configuration and allocator
     explicit gpu_command_buffer(const gpu_command_buffer_config& config,
-                               memory::allocator* alloc) noexcept
+                                memory::allocator* alloc) noexcept
         : cfg(config), allocator(alloc) {
         if (allocator == nullptr) {
             return;
@@ -71,8 +71,7 @@ class gpu_command_buffer {
         }
 
         // Allocate buffer data storage (for buffer updates)
-        void* buffer_data_mem =
-            allocator->allocate(cfg.max_buffer_data_bytes, alignof(float));
+        void* buffer_data_mem = allocator->allocate(cfg.max_buffer_data_bytes, alignof(float));
         if (buffer_data_mem != nullptr) {
             buffer_data = static_cast<uint8_t*>(buffer_data_mem);
             // Zero-initialize buffer data
@@ -178,24 +177,24 @@ class gpu_command_buffer {
 
         // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
         switch (cmd.type) {
-        case gpu_command_type::update_buffer:
-            stats.buffer_updates++;
-            stats.buffer_data_bytes += cmd.buffer_update.size;
-            break;
-        case gpu_command_type::draw_indexed:
-            stats.draw_calls++;
-            break;
-        case gpu_command_type::set_pipeline:
-            stats.pipeline_changes++;
-            break;
-        case gpu_command_type::begin_batch:
-            stats.batched_draws++;
-            break;
-        case gpu_command_type::sync_point:
-            stats.sync_points++;
-            break;
-        default:
-            break;
+            case gpu_command_type::update_buffer:
+                stats.buffer_updates++;
+                stats.buffer_data_bytes += cmd.buffer_update.size;
+                break;
+            case gpu_command_type::draw_indexed:
+                stats.draw_calls++;
+                break;
+            case gpu_command_type::set_pipeline:
+                stats.pipeline_changes++;
+                break;
+            case gpu_command_type::begin_batch:
+                stats.batched_draws++;
+                break;
+            case gpu_command_type::sync_point:
+                stats.sync_points++;
+                break;
+            default:
+                break;
         }
         // NOLINTEND(cppcoreguidelines-pro-type-union-access)
     }
