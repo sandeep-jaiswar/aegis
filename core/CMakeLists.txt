@@ -174,5 +174,28 @@ if(BUILD_SCENE_GRAPH_DEMO)
     endif()
 endif()
 
+# Optional: Build diff engine demo executable
+option(BUILD_DIFF_ENGINE_DEMO "Build structural diff engine demonstration" ON)
+if(BUILD_DIFF_ENGINE_DEMO)
+    add_executable(diff_engine_demo frame/demo_diff_engine.cpp)
+    target_link_libraries(diff_engine_demo PRIVATE aegis_core)
+    target_compile_features(diff_engine_demo PRIVATE cxx_std_23)
+    
+    # Compiler-specific flags for demo
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(diff_engine_demo PRIVATE
+            -Wall
+            -Wextra
+            -Wpedantic
+            $<$<CONFIG:Release>:-O3>
+        )
+    elseif(MSVC)
+        target_compile_options(diff_engine_demo PRIVATE
+            /W4
+            $<$<CONFIG:Release>:/O2>
+        )
+    endif()
+endif()
+
 # Ensure no OS/runtime headers are included in core
 # This is enforced by the compile-time checks and architecture contract
