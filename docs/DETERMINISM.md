@@ -162,11 +162,15 @@ Floating-point operations MUST be deterministic:
 
 **Compiler Flags:**
 ```bash
-# ✅ CORRECT: Preserves determinism
+# ✅ CORRECT: Preserves determinism (GCC/Clang)
 -fno-fast-math -ffp-contract=off
 
+# ✅ CORRECT: Preserves determinism (MSVC)
+/fp:strict
+
 # ❌ WRONG: Breaks determinism
--ffast-math -funsafe-math-optimizations
+-ffast-math -funsafe-math-optimizations  # GCC/Clang
+/fp:fast                                 # MSVC
 ```
 
 ### 4.2 Floating-Point Operations

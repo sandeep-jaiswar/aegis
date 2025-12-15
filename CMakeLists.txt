@@ -59,6 +59,12 @@ elseif(MSVC)
         /GR-
         /EHsc-
     )
+    
+    # Ensure deterministic floating-point behavior (IEEE 754 compliance)
+    # Required for determinism guarantees (see docs/DETERMINISM.md)
+    add_compile_options(
+        /fp:strict
+    )
 endif()
 
 # Build core library (standalone, no runtime/OS dependencies)

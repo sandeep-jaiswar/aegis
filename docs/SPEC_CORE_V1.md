@@ -735,7 +735,7 @@ All fallible operations MUST return explicit result codes.
 
 ### 11.2 Compiler Flags
 
-**Required:**
+**Required (GCC/Clang):**
 - `-std=c++23`
 - `-fno-exceptions`
 - `-fno-rtti`
@@ -743,9 +743,17 @@ All fallible operations MUST return explicit result codes.
 - `-ffp-contract=off` (disables FP contraction, ensures deterministic FP operations)
 - `-Wall -Wextra -Werror`
 
+**Required (MSVC):**
+- `/std:c++23`
+- `/EHsc-` (disable exceptions)
+- `/GR-` (disable RTTI)
+- `/fp:strict` (strict IEEE 754 compliance, deterministic FP operations)
+- `/W4 /WX` (warnings as errors)
+
 **Recommended:**
-- `-O3` (release builds)
-- `-march=native` (architecture-specific optimizations, determinism preserved within same architecture)
+- `-O3` (GCC/Clang release builds)
+- `/O2` (MSVC release builds)
+- `-march=native` (GCC/Clang architecture-specific optimizations, determinism preserved within same architecture)
 
 ### 11.3 Dependencies
 
