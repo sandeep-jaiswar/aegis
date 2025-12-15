@@ -127,8 +127,7 @@ class tracked_transition {
     // Apply event with full metadata tracking
     // Note: This is not const because it increments next_version_
     [[nodiscard]] tracked_snapshot<StateData>
-    apply(const tracked_snapshot<StateData>& current_state,
-          const state_event<EventData>& event,
+    apply(const tracked_snapshot<StateData>& current_state, const state_event<EventData>& event,
           transition_result& result) noexcept {
         // Apply transition
         state_snapshot<StateData> new_snapshot =
