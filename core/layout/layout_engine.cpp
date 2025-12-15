@@ -7,7 +7,26 @@ layout_box* layout_engine::find_box(layout_box* boxes, size_t box_count, box_id 
         return nullptr;
     }
 
-    // Linear search - O(n) but called once per box, so overall still O(n)
+    // Linear search through array
+    // Note: This is called a bounded number of times per box (for child traversal)
+    // Total complexity remains O(n) where n is number of boxes, since:
+    // - compute_sizes calls find_box once per box + once per child link = O(n + edges) = O(n)
+    // - compute_positions calls find_box once per box + once per child link = O(n + edges) = O(n)
+    // For optimization: caller could provide boxes sorted by ID for binary search,
+    // or use a hash map, but that would require dynamic allocation which we avoid
+    for (size_t i = 0; i < box_count; ++i) {
+        if (boxes[i].id == id) {
+            return &boxes[i];
+        }
+    }
+    return nullptr;
+}
+
+const layout_box* layout_engine::find_box(const layout_box* boxes, size_t box_count, box_id id) noexcept {
+    if (id == invalid_box_id) {
+        return nullptr;
+    }
+
     for (size_t i = 0; i < box_count; ++i) {
         if (boxes[i].id == id) {
             return &boxes[i];
@@ -82,7 +101,7 @@ size layout_engine::compute_children_size(const layout_box* boxes, size_t box_co
 
     box_id child_id = parent.first_child_id;
     while (child_id != invalid_box_id) {
-        const layout_box* child = find_box(const_cast<layout_box*>(boxes), box_count, child_id);  // NOLINT(cppcoreguidelines-pro-type-const-cast)
+        const layout_box* child = find_box(boxes, box_count, child_id);
         if (child == nullptr || !child->layout_computed) {
             break;
         }

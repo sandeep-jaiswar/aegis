@@ -26,7 +26,7 @@ class layout_engine {
 
     // Compute layout for a tree of boxes
     // Performs a single pass: computes sizes bottom-up, positions top-down
-    // boxes: array of layout boxes (must be in depth-first order)
+    // boxes: array of layout boxes (order doesn't matter, boxes are found by ID)
     // box_count: number of boxes in the array
     // root_id: ID of the root box
     // available_space: available space for the root box
@@ -46,6 +46,8 @@ class layout_engine {
 
     // Helper: find box by ID in linear array
     [[nodiscard]] static layout_box* find_box(layout_box* boxes, size_t box_count,
+                                      box_id id) noexcept;
+    [[nodiscard]] static const layout_box* find_box(const layout_box* boxes, size_t box_count,
                                       box_id id) noexcept;
 
     // Helper: compute size for a single box based on its constraints
