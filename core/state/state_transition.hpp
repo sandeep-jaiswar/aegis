@@ -74,7 +74,7 @@ class state_transition {
   public:
     // Construct transition executor with a transition function
     explicit state_transition(transition_fn<StateData, EventData> fn) noexcept
-        : transition_fn_(fn) {
+        : transition_func(fn) {
     }
 
     // Apply a single event to current state
@@ -84,7 +84,7 @@ class state_transition {
                                                   transition_result& result) const noexcept {
         // Call the pure transition function
         // This creates a new snapshot without modifying current_state
-        return transition_fn_(current_state, event, result);
+        return transition_func(current_state, event, result);
     }
 
     // Apply multiple events in sequence
@@ -99,7 +99,7 @@ class state_transition {
 
         for (size_t i = 0; i < event_count; ++i) {
             transition_result step_result = transition_result::success;
-            state_snapshot<StateData> next = transition_fn_(current, events[i], step_result);
+            state_snapshot<StateData> next = transition_func(current, events[i], step_result);
 
             if (step_result != transition_result::success) {
                 result = step_result;
@@ -113,7 +113,7 @@ class state_transition {
     }
 
   private:
-    transition_fn<StateData, EventData> transition_fn_;
+    transition_fn<StateData, EventData> transition_func;
 };
 
 // Tracked state transition - includes metadata tracking
@@ -121,17 +121,17 @@ template <typename StateData, typename EventData>
 class tracked_transition {
   public:
     explicit tracked_transition(transition_fn<StateData, EventData> fn) noexcept
-        : transition_fn_(fn), next_version_(1) {
+        : transition_func(fn) {
     }
 
     // Apply event with full metadata tracking
-    // Note: This is not const because it increments next_version_
+    // Note: This is not const because it increments next_version
     [[nodiscard]] tracked_snapshot<StateData>
     apply(const tracked_snapshot<StateData>& current_state, const state_event<EventData>& event,
           transition_result& result) noexcept {
         // Apply transition
         state_snapshot<StateData> new_snapshot =
-            transition_fn_(current_state.snapshot(), event, result);
+            transition_func(current_state.snapshot(), event, result);
 
         if (result != transition_result::success) {
             // Return current state on failure
@@ -140,7 +140,7 @@ class tracked_transition {
 
         // Create new metadata
         snapshot_metadata new_metadata{};
-        new_metadata.version = next_version_++;
+        new_metadata.version = next_version++;
         new_metadata.parent_version = current_state.version();
         new_metadata.timestamp_ns = event.metadata.timestamp_ns;
         new_metadata.bytes_allocated = sizeof(StateData); // Simplified
@@ -151,8 +151,8 @@ class tracked_transition {
     }
 
   private:
-    transition_fn<StateData, EventData> transition_fn_;
-    state_version next_version_; // Not mutable - apply() is non-const
+    transition_fn<StateData, EventData> transition_func;
+    state_version next_version{1}; // Not mutable - apply() is non-const
 };
 
 // Helper to create a simple state transition from a lambda or function

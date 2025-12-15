@@ -55,10 +55,11 @@ class event_stream {
   public:
     // Construct event stream with configuration
     explicit event_stream(const event_stream_config& config = {}) noexcept
-        : cfg(config), next_sequence(config.initial_sequence) {
+        : config_(config), events_storage_{}, events_count_(0),
+          next_sequence_(config.initial_sequence) {
         // Note: In production, would use custom allocator
         // For now, using compile-time fixed capacity
-        // events_storage is raw memory and doesn't need initialization
+        // events_storage_ is raw memory and doesn't need initialization
         static_assert(sizeof(EventData) >= 1, "EventData must be a complete type");
     }
 
@@ -79,67 +80,67 @@ class event_stream {
     // Returns the assigned sequence number on success
     [[nodiscard]] event_stream_result push(const EventData& data, uint64_t timestamp_ns,
                                            uint64_t* out_sequence = nullptr) noexcept {
-        if (events_count >= cfg.max_events) {
+        if (events_count_ >= config_.max_events) {
             return event_stream_result::stream_full;
         }
 
         // Create event with metadata
         event_metadata meta{};
         meta.timestamp_ns = timestamp_ns;
-        meta.sequence = next_sequence;
+        meta.sequence = next_sequence_;
         meta.event_type = 0; // Application can set this
 
         // Store event using placement new
-        new (&events_ptr()[events_count]) state_event<EventData>(meta, data);
-        events_count++;
+        new (&events_ptr()[events_count_]) state_event<EventData>(meta, data);
+        events_count_++;
 
         // Update statistics
-        statistics.total_events++;
-        statistics.current_events = events_count;
-        statistics.max_sequence = next_sequence;
-        if (events_count == 1) {
-            statistics.min_sequence = next_sequence;
+        stats_.total_events++;
+        stats_.current_events = events_count_;
+        stats_.max_sequence = next_sequence_;
+        if (events_count_ == 1) {
+            stats_.min_sequence = next_sequence_;
         }
-        statistics.bytes_allocated = events_count * sizeof(state_event<EventData>);
+        stats_.bytes_allocated = events_count_ * sizeof(state_event<EventData>);
 
         if (out_sequence != nullptr) {
-            *out_sequence = next_sequence;
+            *out_sequence = next_sequence_;
         }
 
-        next_sequence++;
+        next_sequence_++;
         return event_stream_result::success;
     }
 
     // Add event with explicit metadata
     [[nodiscard]] event_stream_result push(const state_event<EventData>& event) noexcept {
-        if (events_count >= cfg.max_events) {
+        if (events_count_ >= config_.max_events) {
             return event_stream_result::stream_full;
         }
 
         // Validate sequence ordering if auto-sequencing is disabled
-        if (!cfg.auto_sequence && events_count > 0) {
-            const uint64_t last_seq = events_ptr()[events_count - 1].metadata.sequence;
+        if (!config_.auto_sequence && events_count_ > 0) {
+            const uint64_t last_seq = events_ptr()[events_count_ - 1].metadata.sequence;
             if (event.metadata.sequence <= last_seq) {
                 return event_stream_result::sequence_error;
             }
         }
 
         // Store event using placement new
-        new (&events_ptr()[events_count]) state_event<EventData>(event);
-        events_count++;
+        new (&events_ptr()[events_count_]) state_event<EventData>(event);
+        events_count_++;
 
         // Update statistics
-        statistics.total_events++;
-        statistics.current_events = events_count;
-        statistics.max_sequence = event.metadata.sequence;
-        if (events_count == 1) {
-            statistics.min_sequence = event.metadata.sequence;
+        stats_.total_events++;
+        stats_.current_events = events_count_;
+        stats_.max_sequence = event.metadata.sequence;
+        if (events_count_ == 1) {
+            stats_.min_sequence = event.metadata.sequence;
         }
-        statistics.bytes_allocated = events_count * sizeof(state_event<EventData>);
+        stats_.bytes_allocated = events_count_ * sizeof(state_event<EventData>);
 
         // Update next_sequence to maintain ordering
-        if (event.metadata.sequence >= next_sequence) {
-            next_sequence = event.metadata.sequence + 1;
+        if (event.metadata.sequence >= next_sequence_) {
+            next_sequence_ = event.metadata.sequence + 1;
         }
 
         return event_stream_result::success;
@@ -154,7 +155,7 @@ class event_stream {
     replay(const state_snapshot<StateData>& initial_state,
            transition_fn<StateData, EventData> transition_fn,
            event_stream_result& result) const noexcept {
-        if (events_count == 0) {
+        if (events_count_ == 0) {
             result = event_stream_result::empty_stream;
             return initial_state;
         }
@@ -163,7 +164,7 @@ class event_stream {
         result = event_stream_result::success;
 
         // Apply events in order
-        for (size_t i = 0; i < events_count; ++i) {
+        for (size_t i = 0; i < events_count_; ++i) {
             transition_result trans_result = transition_result::success;
             state_snapshot<StateData> next = transition_fn(current, events_ptr()[i], trans_result);
 
@@ -176,7 +177,7 @@ class event_stream {
         }
 
         // Update replay statistics
-        statistics.events_replayed++;
+        stats_.events_replayed++;
 
         return current;
     }
@@ -187,7 +188,7 @@ class event_stream {
     replay(const state_snapshot<StateData>& initial_state,
            const state_transition<StateData, EventData>& transition,
            event_stream_result& result) const noexcept {
-        if (events_count == 0) {
+        if (events_count_ == 0) {
             result = event_stream_result::empty_stream;
             return initial_state;
         }
@@ -195,13 +196,13 @@ class event_stream {
         // Use batch apply for efficiency
         transition_result trans_result = transition_result::success;
         state_snapshot<StateData> final_state =
-            transition.apply_batch(initial_state, events_ptr(), events_count, trans_result);
+            transition.apply_batch(initial_state, events_ptr(), events_count_, trans_result);
 
         if (trans_result != transition_result::success) {
             result = event_stream_result::replay_failed;
         } else {
             result = event_stream_result::success;
-            statistics.events_replayed++;
+            stats_.events_replayed++;
         }
 
         return final_state;
@@ -210,7 +211,7 @@ class event_stream {
     // Get event by index (0-based)
     // Returns nullptr if index is out of bounds
     [[nodiscard]] const state_event<EventData>* get(size_t index) const noexcept {
-        if (index >= events_count) {
+        if (index >= events_count_) {
             return nullptr;
         }
         return &events_ptr()[index];
@@ -221,7 +222,7 @@ class event_stream {
     // Return false from callback to stop iteration
     template <typename Callback>
     void for_each(Callback callback) const noexcept {
-        for (size_t i = 0; i < events_count; ++i) {
+        for (size_t i = 0; i < events_count_; ++i) {
             if (!callback(events_ptr()[i])) {
                 break;
             }
@@ -231,51 +232,51 @@ class event_stream {
     // Clear all events (reset stream)
     void clear() noexcept {
         // Destroy constructed events
-        for (size_t i = 0; i < events_count; ++i) {
+        for (size_t i = 0; i < events_count_; ++i) {
             events_ptr()[i].~state_event<EventData>();
         }
 
-        events_count = 0;
-        statistics.current_events = 0;
-        statistics.bytes_allocated = 0;
+        events_count_ = 0;
+        stats_.current_events = 0;
+        stats_.bytes_allocated = 0;
         // Note: total_events and events_replayed are cumulative
     }
 
     // Reset stream completely (including statistics and sequence)
     void reset() noexcept {
         // Destroy constructed events
-        for (size_t i = 0; i < events_count; ++i) {
+        for (size_t i = 0; i < events_count_; ++i) {
             events_ptr()[i].~state_event<EventData>();
         }
 
-        events_count = 0;
-        next_sequence = cfg.initial_sequence;
-        statistics = event_stream_stats{};
+        events_count_ = 0;
+        next_sequence_ = config_.initial_sequence;
+        stats_ = event_stream_stats{};
     }
 
     // Query functions
     [[nodiscard]] size_t count() const noexcept {
-        return events_count;
+        return events_count_;
     }
 
     [[nodiscard]] bool empty() const noexcept {
-        return events_count == 0;
+        return events_count_ == 0;
     }
 
     [[nodiscard]] bool full() const noexcept {
-        return events_count >= cfg.max_events;
+        return events_count_ >= config_.max_events;
     }
 
     [[nodiscard]] size_t capacity() const noexcept {
-        return cfg.max_events;
+        return config_.max_events;
     }
 
     [[nodiscard]] const event_stream_stats& stats() const noexcept {
-        return statistics;
+        return stats_;
     }
 
     [[nodiscard]] const event_stream_config& config() const noexcept {
-        return cfg;
+        return config_;
     }
 
     // Get underlying event array for batch processing
@@ -284,23 +285,23 @@ class event_stream {
     }
 
   private:
-    event_stream_config cfg;
+    event_stream_config config_;
     // Use aligned storage to avoid default construction requirement
-    alignas(state_event<EventData>) unsigned char events_storage[1024 *
-                                                                 sizeof(state_event<EventData>)]{};
-    size_t events_count{0};
-    uint64_t next_sequence{0};
-    mutable event_stream_stats statistics{}; // Mutable for replay count
+    alignas(state_event<EventData>) unsigned char events_storage_[1024 *
+                                                                  sizeof(state_event<EventData>)];
+    size_t events_count_{0};
+    uint64_t next_sequence_{0};
+    mutable event_stream_stats stats_{}; // Mutable for replay count
 
     // Helper to get event array pointer
     [[nodiscard]] state_event<EventData>* events_ptr() noexcept {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-        return reinterpret_cast<state_event<EventData>*>(events_storage);
+        return reinterpret_cast<state_event<EventData>*>(events_storage_);
     }
 
     [[nodiscard]] const state_event<EventData>* events_ptr() const noexcept {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-        return reinterpret_cast<const state_event<EventData>*>(events_storage);
+        return reinterpret_cast<const state_event<EventData>*>(events_storage_);
     }
 };
 
