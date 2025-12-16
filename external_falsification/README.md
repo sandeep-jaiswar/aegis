@@ -45,9 +45,11 @@ All implementations measure identical metrics:
 cmake -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build
 
-# Run Aegis benchmark
-./build/core/browser_comparison_demo
+# Run Aegis benchmark with REAL timing (not deterministic)
+./build/core/aegis_realtime_demo
 ```
+
+**Note**: The `aegis_realtime_demo` uses platform timing to get actual variance measurements, unlike the `browser_comparison_demo` which uses deterministic timestamps for testing.
 
 ### 2. Chromium + React
 

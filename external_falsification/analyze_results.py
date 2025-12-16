@@ -159,21 +159,32 @@ def analyze_variance(all_results: List[BenchmarkResults]):
         if result.technology.lower() == 'aegis':
             continue
         
-        improvement_factor = result.variance / aegis_result.variance
-        
-        print(f"\n{result.technology}:")
-        print(f"  Variance: {format_ns(int(result.variance))}²")
-        print(f"  vs Aegis: {improvement_factor:.1f}x worse")
-        
-        if improvement_factor < 1:
-            print(f"  ⚠️  WARNING: {result.technology} has BETTER variance than Aegis!")
-            print(f"      This contradicts Aegis's claims. Investigation needed.")
-        elif improvement_factor < 10:
-            print(f"  ⚠️  {result.technology} is competitive with Aegis on variance.")
-        elif improvement_factor < 100:
-            print(f"  ✅  Aegis shows significant variance improvement.")
+        # Handle division by zero when Aegis variance is 0 (deterministic timing)
+        if aegis_result.variance == 0:
+            print(f"\n{result.technology}:")
+            print(f"  Variance: {format_ns(int(result.variance))}²")
+            if result.variance == 0:
+                print(f"  vs Aegis: Both have zero variance (deterministic)")
+            else:
+                print(f"  vs Aegis: Cannot compare (Aegis using deterministic timing)")
+                print(f"  ⚠️  Note: Aegis benchmark uses deterministic timestamp provider.")
+                print(f"      Run with real timing to get actual variance comparison.")
         else:
-            print(f"  ✅  Aegis shows order-of-magnitude variance improvement!")
+            improvement_factor = result.variance / aegis_result.variance
+            
+            print(f"\n{result.technology}:")
+            print(f"  Variance: {format_ns(int(result.variance))}²")
+            print(f"  vs Aegis: {improvement_factor:.1f}x worse")
+            
+            if improvement_factor < 1:
+                print(f"  ⚠️  WARNING: {result.technology} has BETTER variance than Aegis!")
+                print(f"      This contradicts Aegis's claims. Investigation needed.")
+            elif improvement_factor < 10:
+                print(f"  ⚠️  {result.technology} is competitive with Aegis on variance.")
+            elif improvement_factor < 100:
+                print(f"  ✅  Aegis shows significant variance improvement.")
+            else:
+                print(f"  ✅  Aegis shows order-of-magnitude variance improvement!")
     
     print()
 

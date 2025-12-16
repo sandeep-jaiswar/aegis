@@ -28,11 +28,11 @@ jobs:
       - name: Build Aegis
         run: |
           cmake -B build -DCMAKE_BUILD_TYPE=Release
-          cmake --build build --target browser_comparison_demo
+          cmake --build build --target aegis_realtime_demo
       
       - name: Run Aegis benchmark
         run: |
-          ./build/core/browser_comparison_demo | python3 external_falsification/convert_aegis_output.py > external_falsification/aegis_results.json
+          ./build/core/aegis_realtime_demo | python3 external_falsification/convert_aegis_output.py > external_falsification/aegis_results.json
       
       - name: Display results
         run: |
@@ -215,7 +215,7 @@ jobs:
       - name: Test conversion script
         run: |
           echo "=== Testing Aegis Output Converter ==="
-          ./build/core/browser_comparison_demo 2>/dev/null | python3 external_falsification/convert_aegis_output.py | head -20 || true
+          ./build/core/aegis_realtime_demo 2>/dev/null | python3 external_falsification/convert_aegis_output.py | head -20 || true
 
   summary:
     name: Benchmark Summary
@@ -236,7 +236,7 @@ jobs:
           echo "# External Falsification Benchmark Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "## ✅ Build Status" >> $GITHUB_STEP_SUMMARY
-          echo "- Aegis baseline: Built and executed" >> $GITHUB_STEP_SUMMARY
+          echo "- **Aegis baseline: Built and executed with real timing** (not deterministic)" >> $GITHUB_STEP_SUMMARY
           echo "- React benchmark: Built successfully" >> $GITHUB_STEP_SUMMARY
           echo "- Canvas benchmark: Validated" >> $GITHUB_STEP_SUMMARY
           echo "- Qt benchmark: Built successfully" >> $GITHUB_STEP_SUMMARY
