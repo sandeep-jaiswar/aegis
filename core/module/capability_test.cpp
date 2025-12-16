@@ -79,7 +79,8 @@ void test_single_capability() {
     uint8_t buffer[4096];
     size_t module_size = 0;
 
-    bool success = build_test_module(buffer, sizeof(buffer), capability_flags::gpu_rendering, &module_size);
+    bool success =
+        build_test_module(buffer, sizeof(buffer), capability_flags::gpu_rendering, &module_size);
     assert(success);
     (void)success;
 
@@ -150,7 +151,8 @@ void test_multiple_capabilities() {
     {
         module_loader loader(buffer, module_size);
         version_info runtime{1, 0};
-        capability_flags available = capability_flags::gpu_rendering | capability_flags::input_events;
+        capability_flags available =
+            capability_flags::gpu_rendering | capability_flags::input_events;
 
         module_load_result result = loader.load(runtime, available);
         assert(result == module_load_result::success);
@@ -232,7 +234,8 @@ void test_determinism() {
         (void)result;
     }
 
-    printf("  ✓ %d loads with same inputs produce identical results\n", DETERMINISM_TEST_ITERATIONS);
+    printf("  ✓ %d loads with same inputs produce identical results\n",
+           DETERMINISM_TEST_ITERATIONS);
 
     // Now with sufficient capabilities
     available = capability_flags::gpu_rendering | capability_flags::audio;
@@ -256,11 +259,11 @@ void test_all_capabilities() {
     size_t module_size = 0;
 
     // Build module with all capabilities
-    capability_flags caps =
-        capability_flags::gpu_rendering | capability_flags::input_events | capability_flags::file_io |
-        capability_flags::network_io | capability_flags::audio | capability_flags::multithreading |
-        capability_flags::webgpu | capability_flags::vulkan | capability_flags::custom_shaders |
-        capability_flags::external_resources;
+    capability_flags caps = capability_flags::gpu_rendering | capability_flags::input_events |
+                            capability_flags::file_io | capability_flags::network_io |
+                            capability_flags::audio | capability_flags::multithreading |
+                            capability_flags::webgpu | capability_flags::vulkan |
+                            capability_flags::custom_shaders | capability_flags::external_resources;
 
     bool success = build_test_module(buffer, sizeof(buffer), caps, &module_size);
     assert(success);
