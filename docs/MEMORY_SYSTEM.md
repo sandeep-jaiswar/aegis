@@ -247,6 +247,448 @@ Potential improvements:
 4. **Memory tagging**: Debug builds with allocation tracking
 5. **Alignment validation**: Debug assertions for power-of-2 check
 
+---
+
+## Structural Sharing Guarantees
+
+Aegis supports structural sharing for immutable state management with strict lifetime guarantees.
+
+### Principles
+
+1. **Immutability**: Shared structures are never mutated
+2. **Reference Counting**: Optional for complex data structures
+3. **Copy-on-Write**: When mutation is needed, create new version
+4. **Deterministic Sharing**: Same inputs lead to same sharing patterns
+
+### Safe Sharing Patterns
+
+**Immutable Scene Nodes:**
+```cpp
+// Previous frame's scene graph (immutable)
+const scene_graph prev_frame;
+
+// Current frame builds new scene
+scene_graph curr_frame;
+
+// Safe to reference prev_frame data (read-only)
+for (const auto& node : prev_frame.nodes) {
+    // Copy node data (safe because immutable)
+    curr_frame.add_node(node);
+}
+
+// After diff, prev_frame can be freed
+```
+
+**State Snapshots:**
+```cpp
+// State snapshots are immutable
+struct state_snapshot {
+    // All data is value-type or managed separately
+    uint64_t timestamp;
+    std::vector<entity> entities;  // Copied, not shared
+    
+    // Safe copy constructor (deep copy)
+    state_snapshot(const state_snapshot& other) = default;
+};
+
+// Previous state remains valid
+state_snapshot prev_state = current_state;
+// New state is independent
+state_snapshot next_state = prev_state.apply_event(evt);
+```
+
+**Arena-Backed Sharing:**
+```cpp
+// Arena allocator enables efficient structural sharing
+arena_allocator state_arena(buffer, size);
+
+// Allocate state from arena
+state_snapshot* s1 = allocate_state(state_arena);
+
+// Can share pointers within same arena lifetime
+state_snapshot* s2 = s1;  // Both valid until arena reset
+
+// Reset invalidates all pointers
+state_arena.reset();  // s1 and s2 now invalid
+```
+
+### Forbidden Sharing Patterns
+
+**FORBIDDEN: Sharing across frame allocators**
+```cpp
+// ❌ WRONG: Pointer from frame N used in frame N+1
+frame_allocator frame_alloc;
+void* ptr = frame_alloc.allocate(64, 8);  // Frame N
+// ... end_frame() resets allocator ...
+// ptr is now INVALID (undefined behavior to use)
+use_data(ptr);  // ❌ Dangling pointer
+```
+
+**FORBIDDEN: Mutable shared state**
+```cpp
+// ❌ WRONG: Multiple owners of mutable data
+struct mutable_node {
+    int value;
+};
+
+mutable_node* shared = new mutable_node{42};
+node_a.data = shared;
+node_b.data = shared;
+
+node_a.data->value = 100;  // ❌ Affects node_b (non-deterministic)
+```
+
+**FORBIDDEN: Circular references**
+```cpp
+// ❌ WRONG: Circular ownership
+struct node {
+    node* parent;
+    node* child;
+};
+
+node* a = allocate_node();
+node* b = allocate_node();
+a->child = b;
+b->parent = a;  // ❌ Circular reference (leak without GC)
+```
+
+### Memory Lifetime Rules
+
+**Rule 1: Frame Allocator Lifetime**
+- Allocations MUST NOT outlive the frame
+- Pointers become invalid at end_frame()
+- No references to frame allocations in next frame
+
+**Rule 2: Arena Allocator Lifetime**
+- Allocations valid until arena.reset()
+- Multiple objects can share arena
+- Arena owner controls lifetime
+
+**Rule 3: State Snapshot Lifetime**
+- Snapshots are value types (deep copy)
+- No shared mutable state between snapshots
+- Previous snapshots remain valid
+
+**Rule 4: Scene Graph Lifetime**
+- Previous frame's scene is immutable
+- Current frame's scene is under construction
+- Diff operation compares two immutable scenes
+
+### Verification
+
+Lifetime safety is verified by:
+
+1. **Static Analysis**: No pointers stored across frame boundaries
+2. **Runtime Checks**: Arena/frame allocator asserts on invalid access
+3. **Determinism Tests**: Same inputs produce same allocation patterns
+4. **Memory Sanitizers**: AddressSanitizer detects use-after-free
+
+---
+
+## Forbidden Allocation Patterns
+
+This section explicitly lists allocation patterns that MUST NOT be used in conforming implementations.
+
+### Pattern 1: Global new/delete in Frame Execution
+
+**FORBIDDEN:**
+```cpp
+void on_frame_update() {
+    auto* data = new DataObject();  // ❌ Global allocation
+    process(data);
+    delete data;  // ❌ Global deallocation
+}
+```
+
+**CORRECT:**
+```cpp
+void on_frame_update(frame_allocator& alloc) {
+    auto* data = alloc.allocate(sizeof(DataObject), alignof(DataObject));
+    process(data);
+    // No explicit delete - allocator resets at frame end
+}
+```
+
+### Pattern 2: Allocation Without Size Tracking
+
+**FORBIDDEN:**
+```cpp
+class bad_allocator {
+    void* allocate(size_t size) {
+        return malloc(size);  // ❌ No tracking
+    }
+};
+```
+
+**CORRECT:**
+```cpp
+class good_allocator {
+    void* allocate(size_t size, size_t alignment) {
+        total_allocated += size;  // ✅ Track allocation
+        return bump_allocate(size, alignment);
+    }
+};
+```
+
+### Pattern 3: Hidden Allocations in Containers
+
+**FORBIDDEN:**
+```cpp
+void process_events(const std::vector<event>& events) {
+    std::vector<event> filtered;  // ❌ Hidden heap allocation
+    for (const auto& e : events) {
+        if (e.type == desired_type)
+            filtered.push_back(e);  // ❌ Potential reallocation
+    }
+}
+```
+
+**CORRECT:**
+```cpp
+void process_events(const std::vector<event>& events, frame_allocator& alloc) {
+    // Pre-allocate buffer from frame allocator
+    event* filtered = static_cast<event*>(
+        alloc.allocate(events.size() * sizeof(event), alignof(event))
+    );
+    size_t count = 0;
+    for (const auto& e : events) {
+        if (e.type == desired_type)
+            filtered[count++] = e;
+    }
+}
+```
+
+### Pattern 4: Indefinite Lifetime Allocations
+
+**FORBIDDEN:**
+```cpp
+// Allocation that never gets freed
+static std::vector<event> event_log;  // ❌ Grows unbounded
+
+void log_event(const event& e) {
+    event_log.push_back(e);  // ❌ Never freed
+}
+```
+
+**CORRECT:**
+```cpp
+// Bounded allocation with explicit lifetime
+class event_log {
+    event* buffer;
+    size_t capacity;
+    size_t count;
+    
+public:
+    event_log(arena_allocator& arena, size_t max_events)
+        : buffer(static_cast<event*>(
+              arena.allocate(max_events * sizeof(event), alignof(event)))),
+          capacity(max_events),
+          count(0) {}
+    
+    void add(const event& e) {
+        if (count < capacity)
+            buffer[count++] = e;
+    }
+    
+    void clear() { count = 0; }  // Reuse buffer
+};
+```
+
+### Pattern 5: Allocation in Destructors
+
+**FORBIDDEN:**
+```cpp
+class bad_object {
+    ~bad_object() {
+        cleanup_data = new uint8_t[1024];  // ❌ Allocation in destructor
+    }
+};
+```
+
+**CORRECT:**
+```cpp
+class good_object {
+    ~good_object() noexcept {
+        // No allocations - only cleanup of existing resources
+    }
+};
+```
+
+### Pattern 6: Recursive Unbounded Allocations
+
+**FORBIDDEN:**
+```cpp
+void recursive_process(const node* n) {
+    auto* copy = new node(*n);  // ❌ Unbounded recursion + allocation
+    if (n->left) recursive_process(n->left);
+    if (n->right) recursive_process(n->right);
+}
+```
+
+**CORRECT:**
+```cpp
+void iterative_process(const node* root, arena_allocator& arena) {
+    // Pre-allocate stack space
+    const node** stack = static_cast<const node**>(
+        arena.allocate(MAX_DEPTH * sizeof(node*), alignof(node*))
+    );
+    size_t stack_size = 0;
+    
+    stack[stack_size++] = root;
+    while (stack_size > 0) {
+        const node* n = stack[--stack_size];
+        // Process bounded, no recursion
+    }
+}
+```
+
+### Pattern 7: Memory Leaks via Lost Pointers
+
+**FORBIDDEN:**
+```cpp
+void process_frame(arena_allocator& arena) {
+    void* data = arena.allocate(1024, 16);
+    // ... forgot to track pointer ...
+    data = arena.allocate(2048, 16);  // ❌ Lost first allocation
+}
+```
+
+**CORRECT:**
+```cpp
+void process_frame(arena_allocator& arena) {
+    struct frame_data {
+        void* buffer1;
+        void* buffer2;
+    };
+    
+    frame_data data;
+    data.buffer1 = arena.allocate(1024, 16);
+    data.buffer2 = arena.allocate(2048, 16);
+    // Both allocations tracked
+}
+```
+
+---
+
+## Memory Behavior Reproducibility Under Replay
+
+All memory operations MUST be reproducible during replay for determinism.
+
+### Replay Guarantees
+
+**Given:**
+- Identical initial state S₀
+- Identical event sequence E = [e₁, e₂, ..., eₙ]
+- Identical allocator configurations
+
+**Then:**
+- Allocation order MUST be identical
+- Allocation sizes MUST be identical
+- Allocation alignments MUST be identical
+- Memory layout MUST be identical
+- Peak memory usage MUST be identical
+
+### Replay Verification Test
+
+```cpp
+// First execution - record
+frame_allocator alloc1(buffer, sizeof(buffer));
+frame_context ctx1(&alloc1);
+
+ctx1.begin_frame(T0);
+ctx1.apply_events();  // Process event e1
+void* ptr1_run1 = alloc1.allocate(64, 8);
+ctx1.end_frame();
+
+frame_stats stats1 = ctx1.stats_get();
+
+// Second execution - replay
+frame_allocator alloc2(buffer, sizeof(buffer));
+frame_context ctx2(&alloc2);
+
+ctx2.begin_frame(T0);
+ctx2.apply_events();  // Process same event e1
+void* ptr1_run2 = alloc2.allocate(64, 8);
+ctx2.end_frame();
+
+frame_stats stats2 = ctx2.stats_get();
+
+// Verify reproducibility
+assert(stats1.bytes_allocated == stats2.bytes_allocated);
+assert(stats1.bytes_freed == stats2.bytes_freed);
+assert(stats1.peak_memory_used == stats2.peak_memory_used);
+assert(stats1.frame_allocations == stats2.frame_allocations);
+```
+
+### Deterministic Allocation Tracking
+
+All allocations MUST be tracked deterministically:
+
+```cpp
+class allocation_tracker {
+    struct allocation_record {
+        uint64_t timestamp_ns;
+        size_t size;
+        size_t alignment;
+        const char* source_file;
+        int source_line;
+    };
+    
+    std::vector<allocation_record> allocations;
+    
+    // FNV-1a hash constants (see DETERMINISM.md §9.2)
+    static constexpr uint64_t FNV_OFFSET = 14695981039346656037ULL;
+    static constexpr uint64_t FNV_PRIME = 1099511628211ULL;
+    
+public:
+    void record_allocation(uint64_t timestamp, size_t size, 
+                          size_t alignment, 
+                          const char* file, int line) {
+        allocations.push_back({timestamp, size, alignment, file, line});
+    }
+    
+    // Compute deterministic hash using FNV-1a
+    uint64_t compute_hash() const {
+        uint64_t hash = FNV_OFFSET;
+        for (const auto& record : allocations) {
+            hash ^= record.timestamp_ns;
+            hash *= FNV_PRIME;
+            hash ^= record.size;
+            hash *= FNV_PRIME;
+            hash ^= record.alignment;
+            hash *= FNV_PRIME;
+        }
+        return hash;
+    }
+};
+```
+
+### Cross-Platform Memory Reproducibility
+
+Memory behavior MUST be identical across platforms:
+
+| Platform | Pointer Size | Alignment | Determinism |
+|----------|--------------|-----------|-------------|
+| Linux x64 | 8 bytes | alignof(max_align_t) | ✅ Yes |
+| Linux ARM64 | 8 bytes | alignof(max_align_t) | ✅ Yes |
+| macOS x64 | 8 bytes | alignof(max_align_t) | ✅ Yes |
+| macOS ARM64 | 8 bytes | alignof(max_align_t) | ✅ Yes |
+
+**Verification:**
+```bash
+# Run on platform A
+./benchmark --record memory_test.log
+
+# Run on platform B
+./benchmark --replay memory_test.log
+
+# Results MUST match
+diff platform_a_stats.txt platform_b_stats.txt
+# (no output = identical)
+```
+
+---
+
 ## References
 
 - [CORE_FOLDER_CONTRACT.md](../docs/CORE_FOLDER_CONTRACT.md) - Core memory section

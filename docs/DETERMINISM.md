@@ -613,7 +613,7 @@ We accept these costs for determinism:
 **Non-Deterministic (Platform Layer):**
 - System time queries
 - User input events (before they enter core)
-- GPU execution timing
+- GPU execution timing (but logical results ARE deterministic)
 - OS thread scheduling
 - Network I/O
 
@@ -621,6 +621,92 @@ We accept these costs for determinism:
 - Transcendental functions (sin, cos, exp) may vary slightly across platforms
 - Last-bit differences in floating-point due to compiler/architecture
 - Performance timing (measured time may vary, but logical results are identical)
+
+### 12.3 GPU Determinism Boundaries
+
+The core runtime maintains strict determinism boundaries with GPU operations:
+
+**Core's Responsibility (100% Deterministic):**
+- Scene graph construction
+- Diff computation (structural changes)
+- Command generation (what commands, in what order)
+- Buffer layout specification
+- Vertex/index data preparation
+
+**Runtime's Responsibility (Timing Non-Deterministic, Results Deterministic):**
+- GPU command submission
+- GPU execution timing
+- Resource allocation timing
+- Driver interactions
+- Actual rendering operations
+
+**Determinism Contract:**
+
+```cpp
+// ✅ DETERMINISTIC: Core generates identical command sequence
+scene_diff diff = compute_diff(prev_scene, next_scene);
+gpu_command_buffer cmds = build_commands(diff);
+uint64_t hash = compute_hash(cmds.data(), cmds.size());
+// hash MUST be identical for identical scenes across all runs
+
+// ⚠️ NON-DETERMINISTIC: GPU execution timing varies
+auto start = timer.now();
+runtime.submit_commands(cmds);
+runtime.wait_for_completion();
+auto duration = timer.now() - start;  // May vary
+// But: rendered pixels MUST be identical (ignoring timing)
+```
+
+**GPU Determinism Guarantees:**
+
+1. **Command Order**: Commands are submitted in deterministic order
+2. **Command Content**: Command parameters are bit-exact
+3. **Buffer Contents**: Vertex/index/uniform buffers are bit-exact
+4. **Draw Calls**: Number and order of draw calls is deterministic
+5. **State Changes**: GPU state changes occur in deterministic order
+
+**GPU Non-Determinism Exclusions:**
+
+1. **Execution Time**: GPU kernel execution time may vary
+2. **Resource IDs**: GPU-assigned resource handles may vary
+3. **Memory Addresses**: GPU virtual addresses may vary
+4. **Scheduling**: Command queue scheduling may vary
+5. **Error Recovery**: GPU error recovery paths may vary
+
+**Verification Strategy:**
+
+```cpp
+// Record command sequence
+workload_recorder recorder;
+recorder.start_recording("gpu_test");
+
+// Execute frame
+frame_context ctx;
+ctx.begin_frame(timestamp);
+// ... execute phases ...
+scene_diff diff = ctx.get_scene_diff();
+gpu_command_buffer cmds = build_gpu_commands(diff);
+
+// Record command buffer hash (deterministic)
+uint64_t cmd_hash = recorder.hash_commands(cmds);
+
+// Replay verification
+workload_player player(recorder.finish_recording());
+// ... replay same input events ...
+gpu_command_buffer replay_cmds = build_gpu_commands(player.get_scene_diff());
+uint64_t replay_hash = player.hash_commands(replay_cmds);
+
+// MUST match
+assert(cmd_hash == replay_hash);
+```
+
+**Best Practices:**
+
+- Core generates GPU commands, runtime executes them
+- No GPU feedback loops in core (breaks determinism boundary)
+- No GPU queries in core (timing-dependent)
+- No GPU error handling in core (runtime's responsibility)
+- All GPU-related decisions made from deterministic state
 
 ---
 
@@ -697,11 +783,14 @@ If a feature must be deprecated:
 
 ## 16. Version History
 
-- **v1.0.0** (2025-12-15): Initial frozen specification
+- **v1.0.0** (2025-12-16): Frozen specification - Production ready
   - Fundamental determinism guarantee defined
   - Event ordering specified
   - Memory determinism formalized
   - Testing methodology established
+  - GPU determinism boundaries added (§12.3)
+  - Cross-platform verification enhanced
+  - All conformance tests specified
 
 ---
 
@@ -719,3 +808,5 @@ A deterministic implementation MUST:
 8. ✅ Zero-initialize all memory and padding bytes
 9. ✅ Accept all timing inputs explicitly (no system clocks)
 10. ✅ Pass all conformance tests in §13.1
+11. ✅ Respect GPU determinism boundaries (§12.3)
+12. ✅ Generate deterministic GPU command sequences
