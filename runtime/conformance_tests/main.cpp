@@ -4,6 +4,7 @@
 #include "conformance_tests.hpp"
 
 #include <cstdio>
+#include <cstring>
 
 using namespace aegis::runtime::conformance;
 

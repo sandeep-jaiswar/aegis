@@ -14,6 +14,7 @@ target_link_libraries(conformance_tests
         aegis_core
 )
 
+# Include directories - point to project root so we can use "core/..." paths
 target_include_directories(conformance_tests
     PRIVATE
         ${CMAKE_SOURCE_DIR}

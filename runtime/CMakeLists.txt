@@ -8,8 +8,9 @@ file(GLOB_RECURSE RUNTIME_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
 )
 
-# Exclude demo files from library
+# Exclude demo files and conformance tests from library
 list(FILTER RUNTIME_SOURCES EXCLUDE REGEX ".*demo.*\\.cpp$")
+list(FILTER RUNTIME_SOURCES EXCLUDE REGEX ".*conformance_tests.*\\.cpp$")
 
 file(GLOB_RECURSE RUNTIME_HEADERS
     "${CMAKE_CURRENT_SOURCE_DIR}/*.hpp"
