@@ -1,11 +1,12 @@
 #pragma once
 
 #include "workload.h"
-#include <QMainWindow>
-#include <QTextEdit>
-#include <QPushButton>
-#include <QVBoxLayout>
+
 #include <QLabel>
+#include <QMainWindow>
+#include <QPushButton>
+#include <QTextEdit>
+#include <QVBoxLayout>
 #include <vector>
 
 namespace aegis::benchmark {
@@ -13,15 +14,15 @@ namespace aegis::benchmark {
 class BenchmarkWindow : public QMainWindow {
     Q_OBJECT
 
-public:
+  public:
     explicit BenchmarkWindow(QWidget* parent = nullptr);
     ~BenchmarkWindow() override;
 
-private slots:
+  private slots:
     void run_benchmark();
     void export_results();
 
-private:
+  private:
     void display_results(const PercentileMetrics& metrics);
     QString format_ns(uint64_t ns) const;
 

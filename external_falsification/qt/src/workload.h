@@ -18,14 +18,14 @@ struct Config {
 
 // Workload implementation
 class QtWorkload {
-public:
+  public:
     QtWorkload();
     ~QtWorkload();
 
     void reset();
     void execute_frame();
 
-private:
+  private:
     void perform_allocations();
     void perform_operations();
 

@@ -67,12 +67,12 @@ void print_json_results(const benchmark::benchmark_result& result) {
     printf("    \"p99_9_ns\": %llu,\n", static_cast<unsigned long long>(result.timing.p99_9_ns));
     printf("    \"max_ns\": %llu,\n", static_cast<unsigned long long>(result.timing.max_ns));
     printf("    \"mean_ns\": %llu,\n", static_cast<unsigned long long>(result.timing.mean_ns));
-    
+
     // Calculate variance estimate
     const uint64_t range = result.timing.max_ns - result.timing.min_ns;
     const uint64_t variance_estimate = (range * range) / 12;
     printf("    \"variance\": %llu\n", static_cast<unsigned long long>(variance_estimate));
-    
+
     printf("  }\n");
     printf("}\n");
 }

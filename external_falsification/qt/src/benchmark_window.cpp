@@ -1,19 +1,18 @@
 #include "benchmark_window.h"
-#include <QMessageBox>
-#include <QFileDialog>
-#include <QFile>
-#include <QTextStream>
-#include <QDateTime>
+
 #include <QApplication>
+#include <QDateTime>
 #include <QElapsedTimer>
+#include <QFile>
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QTextStream>
 #include <QThread>
 #include <chrono>
 
 namespace aegis::benchmark {
 
-BenchmarkWindow::BenchmarkWindow(QWidget* parent)
-    : QMainWindow(parent) {
-    
+BenchmarkWindow::BenchmarkWindow(QWidget* parent) : QMainWindow(parent) {
     setWindowTitle("APP-001 Qt Benchmark - External Falsification");
     resize(800, 600);
 
@@ -23,7 +22,7 @@ BenchmarkWindow::BenchmarkWindow(QWidget* parent)
 
     // Header
     auto* header = new QLabel("<h1>🔧 APP-001 Qt Benchmark</h1>"
-                               "<p><i>External Falsification - Native Qt</i></p>");
+                              "<p><i>External Falsification - Native Qt</i></p>");
     header->setTextFormat(Qt::RichText);
     layout->addWidget(header);
 
@@ -32,8 +31,7 @@ BenchmarkWindow::BenchmarkWindow(QWidget* parent)
         "<div style='background-color: #ffeecc; padding: 10px; border-left: 4px solid #ff9900;'>"
         "<strong>⚠️ Note:</strong> This benchmark implements APP-001 using Qt to validate "
         "Aegis's variance claims. For accurate results, close other applications."
-        "</div>"
-    );
+        "</div>");
     warning->setTextFormat(Qt::RichText);
     warning->setWordWrap(true);
     layout->addWidget(warning);
@@ -43,10 +41,10 @@ BenchmarkWindow::BenchmarkWindow(QWidget* parent)
     start_button_ = new QPushButton("Start Benchmark");
     export_button_ = new QPushButton("Export Results");
     export_button_->setEnabled(false);
-    
+
     connect(start_button_, &QPushButton::clicked, this, &BenchmarkWindow::run_benchmark);
     connect(export_button_, &QPushButton::clicked, this, &BenchmarkWindow::export_results);
-    
+
     button_layout->addWidget(start_button_);
     button_layout->addWidget(export_button_);
     button_layout->addStretch();
@@ -74,8 +72,7 @@ BenchmarkWindow::BenchmarkWindow(QWidget* parent)
         "<li>Platform-specific windowing system</li>"
         "</ul>"
         "<p>Compare these results with the Aegis baseline to see the impact of Qt framework "
-        "overhead on variance and predictability.</p>"
-    );
+        "overhead on variance and predictability.</p>");
     info->setTextFormat(Qt::RichText);
     info->setWordWrap(true);
     layout->addWidget(info);
@@ -90,7 +87,7 @@ void BenchmarkWindow::run_benchmark() {
     export_button_->setEnabled(false);
     status_label_->setText("Running benchmark...");
     results_text_->clear();
-    
+
     QApplication::processEvents();
 
     QtWorkload workload;
@@ -110,14 +107,13 @@ void BenchmarkWindow::run_benchmark() {
         auto start = std::chrono::high_resolution_clock::now();
         workload.execute_frame();
         auto end = std::chrono::high_resolution_clock::now();
-        
+
         auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
         timings.push_back(duration.count());
 
         if (i % 10 == 0) {
             status_label_->setText(
-                QString("Progress: %1/%2 iterations...").arg(i).arg(Config::measured_iterations)
-            );
+                QString("Progress: %1/%2 iterations...").arg(i).arg(Config::measured_iterations));
             QApplication::processEvents();
         }
     }
@@ -127,7 +123,7 @@ void BenchmarkWindow::run_benchmark() {
 
     display_results(current_results_);
     status_label_->setText("Benchmark complete!");
-    
+
     start_button_->setEnabled(true);
     export_button_->setEnabled(true);
 }
@@ -160,11 +156,9 @@ void BenchmarkWindow::export_results() {
     }
 
     QString filename = QFileDialog::getSaveFileName(
-        this,
-        "Export Results",
+        this, "Export Results",
         QString("qt-benchmark-%1.json").arg(QDateTime::currentMSecsSinceEpoch()),
-        "JSON Files (*.json)"
-    );
+        "JSON Files (*.json)");
 
     if (filename.isEmpty()) {
         return;
