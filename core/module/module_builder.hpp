@@ -47,7 +47,7 @@ class module_builder {
         copy_string(meta.description, desc, sizeof(meta.description));
 
         if (!add_section(section_type::metadata, "metadata",
-                        reinterpret_cast<const uint8_t*>(&meta), sizeof(meta))) {
+                         reinterpret_cast<const uint8_t*>(&meta), sizeof(meta))) {
             return false;
         }
 

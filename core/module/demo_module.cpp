@@ -12,24 +12,24 @@ void demo_module_format() {
 
     // Step 1: Create a module
     printf("Step 1: Building module...\n");
-    
+
     constexpr size_t BUFFER_SIZE = 1024 * 1024; // 1 MB buffer
     uint8_t module_buffer[BUFFER_SIZE]{};
-    
+
     module_builder builder(module_buffer, BUFFER_SIZE);
 
     // Initialize module with metadata
     const capability_flags caps = capability_flags::gpu_rendering | capability_flags::input_events;
     const uint64_t timestamp = 1702656000; // Example timestamp
-    
-    bool success = builder.init(
-        "demo_app",                         // name
-        "1.0.0",                           // version
-        "Aegis Team",                      // author
-        "Demo application showcasing the Aegis module format", // description
-        caps,                              // capabilities
-        timestamp                          // creation timestamp
-    );
+
+    bool success =
+        builder.init("demo_app",                                            // name
+                     "1.0.0",                                               // version
+                     "Aegis Team",                                          // author
+                     "Demo application showcasing the Aegis module format", // description
+                     caps,                                                  // capabilities
+                     timestamp                                              // creation timestamp
+        );
 
     if (!success) {
         printf("ERROR: Failed to initialize module builder\n");
@@ -67,8 +67,9 @@ void demo_module_format() {
 
     const size_t module_size = builder.get_module_size();
     printf("  - Module built successfully (%zu bytes)\n", module_size);
-    printf("  - Module hash: 0x%016lx\n\n", 
-           static_cast<unsigned long>(reinterpret_cast<const module_header*>(builder.get_buffer())->module_hash));
+    printf("  - Module hash: 0x%016lx\n\n",
+           static_cast<unsigned long>(
+               reinterpret_cast<const module_header*>(builder.get_buffer())->module_hash));
 
     // Step 2: Load and validate the module
     printf("Step 2: Loading module...\n");
@@ -125,14 +126,14 @@ void demo_module_format() {
 
     // Get assets
     printf("\nAssets:\n");
-    
+
     const asset_entry* texture = loader.find_asset("main_texture");
     if (texture != nullptr) {
         printf("  - Found asset: %s\n", texture->name);
-        printf("    Type: %u, Size: %lu bytes, Hash: 0x%016lx\n",
-               texture->type, static_cast<unsigned long>(texture->size), 
+        printf("    Type: %u, Size: %lu bytes, Hash: 0x%016lx\n", texture->type,
+               static_cast<unsigned long>(texture->size),
                static_cast<unsigned long>(texture->hash));
-        
+
         const uint8_t* texture_data_loaded = loader.get_asset_data(texture);
         if (texture_data_loaded != nullptr) {
             printf("    Data: ");
@@ -146,9 +147,8 @@ void demo_module_format() {
     const asset_entry* font = loader.find_asset("default_font");
     if (font != nullptr) {
         printf("  - Found asset: %s\n", font->name);
-        printf("    Type: %u, Size: %lu bytes, Hash: 0x%016lx\n",
-               font->type, static_cast<unsigned long>(font->size), 
-               static_cast<unsigned long>(font->hash));
+        printf("    Type: %u, Size: %lu bytes, Hash: 0x%016lx\n", font->type,
+               static_cast<unsigned long>(font->size), static_cast<unsigned long>(font->hash));
     }
 
     // Step 4: Test version compatibility
@@ -169,14 +169,13 @@ void demo_module_format() {
 
     // Step 5: Test determinism
     printf("\nStep 5: Testing determinism...\n");
-    
+
     uint8_t module_buffer2[BUFFER_SIZE]{};
     module_builder builder2(module_buffer2, BUFFER_SIZE);
-    
+
     // Build identical module
     builder2.init("demo_app", "1.0.0", "Aegis Team",
-                  "Demo application showcasing the Aegis module format",
-                  caps, timestamp);
+                  "Demo application showcasing the Aegis module format", caps, timestamp);
     builder2.add_code(code_data, sizeof(code_data));
     builder2.add_asset("main_texture", 1, texture_data, sizeof(texture_data));
     builder2.add_asset("default_font", 2, font_data, sizeof(font_data));
