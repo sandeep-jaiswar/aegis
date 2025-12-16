@@ -136,6 +136,18 @@ We document ALL results, including:
 
 ## Quick Start Guide
 
+### Automated Testing (GitHub Actions)
+
+The external falsification benchmarks include a GitHub Actions workflow that automatically:
+- Builds and runs Aegis baseline benchmark
+- Validates all implementations build correctly
+- Tests the analysis tool
+- Generates comprehensive results
+
+See [WORKFLOW.md](WORKFLOW.md) for details.
+
+### Manual Testing
+
 ### 1. Run All Benchmarks
 
 ```bash
