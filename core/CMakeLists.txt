@@ -287,6 +287,26 @@ if(BUILD_BROWSER_COMPARISON_DEMO)
             $<$<CONFIG:Release>:/O2>
         )
     endif()
+    
+    # Also build real-time version for external falsification
+    add_executable(aegis_realtime_demo benchmark/demo_aegis_realtime.cpp)
+    target_link_libraries(aegis_realtime_demo PRIVATE aegis_core)
+    target_compile_features(aegis_realtime_demo PRIVATE cxx_std_23)
+    
+    # Compiler-specific flags for realtime demo
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(aegis_realtime_demo PRIVATE
+            -Wall
+            -Wextra
+            -Wpedantic
+            $<$<CONFIG:Release>:-O3>
+        )
+    elseif(MSVC)
+        target_compile_options(aegis_realtime_demo PRIVATE
+            /W4
+            $<$<CONFIG:Release>:/O2>
+        )
+    endif()
 endif()
 
 # Optional: Build module format demo executable

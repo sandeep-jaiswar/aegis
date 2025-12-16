@@ -1,0 +1,32 @@
+# Benchmark result files
+*_results.json
+aegis_results.txt
+
+# But keep package.json files
+!package.json
+!**/package.json
+
+# React
+react/node_modules/
+react/dist/
+react/.vite/
+react/package-lock.json
+
+# Qt
+qt/build/
+qt/*.user
+
+# ImGui (if added)
+imgui/build/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
