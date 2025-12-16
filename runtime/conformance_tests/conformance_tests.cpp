@@ -271,7 +271,7 @@ test_result test_memory_leak_detection() noexcept {
     // Allocate and reset 10 times
     for (int i = 0; i < 10; ++i) {
         void* p = alloc.allocate(64, 8);
-        (void)p;  // Mark as used
+        (void)p;  // Suppress unused variable warning
         alloc.reset();
     }
 
@@ -599,7 +599,8 @@ test_result test_invalid_magic_fails() noexcept {
     printf("Test: Invalid magic fails\n");
     printf("Invariant: Bad magic → module_load_result::invalid_magic\n");
 
-    uint8_t buffer[4096] = {0};  // Invalid magic
+    // Create buffer with zero bytes (invalid magic number)
+    uint8_t buffer[4096] = {0};
 
     module_loader loader(buffer, sizeof(buffer));
     version_info runtime{1, 0};

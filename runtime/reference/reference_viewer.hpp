@@ -134,8 +134,8 @@ class reference_viewer_interface {
     // Load an Aegis module
     // Returns module_load_result indicating success or specific failure
     // MUST verify module capabilities against runtime capabilities
-    virtual core_module::module_load_result load_module(const module_load_config& config) noexcept =
-        0;
+    virtual core_module::module_load_result load_module(
+        const module_load_config& config) noexcept = 0;
 
     // Unload the current module
     // MUST clean up all module resources
