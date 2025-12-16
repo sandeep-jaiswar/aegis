@@ -349,10 +349,6 @@ This document provides a comprehensive index of all Aegis specifications, organi
 | Capability enforcement replayable | CAPABILITY_MODEL.md | Replay Testing | ✅ Complete |
 
 ---
-| All allocators have documented invariants | SPEC_CORE_V1.md | §4 | ✅ Complete |
-| Memory behavior reproducible under replay | MEMORY_SYSTEM.md | Reproducibility | ✅ Complete |
-
----
 
 ## Implementation Verification
 

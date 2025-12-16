@@ -7,6 +7,9 @@
 
 namespace aegis::core::module {
 
+// Test constants
+constexpr int DETERMINISM_TEST_ITERATIONS = 10;
+
 // Test helper: Build a module with specific capabilities
 bool build_test_module(uint8_t* buffer, size_t buffer_size, capability_flags caps,
                        size_t* out_size) {
@@ -221,27 +224,27 @@ void test_determinism() {
     version_info runtime{1, 0};
     capability_flags available = capability_flags::gpu_rendering; // Missing audio
 
-    // Load 10 times with identical inputs
-    for (int i = 0; i < 10; ++i) {
+    // Load DETERMINISM_TEST_ITERATIONS times with identical inputs
+    for (int i = 0; i < DETERMINISM_TEST_ITERATIONS; ++i) {
         module_loader loader(buffer, module_size);
         module_load_result result = loader.load(runtime, available);
         assert(result == module_load_result::insufficient_capabilities);
         (void)result;
     }
 
-    printf("  ✓ 10 loads with same inputs produce identical results\n");
+    printf("  ✓ %d loads with same inputs produce identical results\n", DETERMINISM_TEST_ITERATIONS);
 
     // Now with sufficient capabilities
     available = capability_flags::gpu_rendering | capability_flags::audio;
 
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < DETERMINISM_TEST_ITERATIONS; ++i) {
         module_loader loader(buffer, module_size);
         module_load_result result = loader.load(runtime, available);
         assert(result == module_load_result::success);
         (void)result;
     }
 
-    printf("  ✓ 10 successful loads produce identical results\n");
+    printf("  ✓ %d successful loads produce identical results\n", DETERMINISM_TEST_ITERATIONS);
     printf("  ✅ Test 4 passed\n\n");
 }
 
