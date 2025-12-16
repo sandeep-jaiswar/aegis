@@ -768,37 +768,198 @@ All fallible operations MUST return explicit result codes.
 
 ---
 
-## 12. Acceptance Criteria
+## 12. Undefined Behavior
+
+This section explicitly lists behaviors that are undefined and MUST be avoided in conforming implementations.
+
+### 12.1 Memory-Related Undefined Behavior
+
+**UNDEFINED:**
+- Accessing memory beyond allocated buffer bounds
+- Using memory after it has been freed or reset
+- Dereferencing nullptr
+- Unaligned memory access when alignment is required
+- Integer overflow in size calculations without checking
+- Comparing pointers from different allocations with relational operators (<, >, <=, >=)
+
+**DEFINED BEHAVIOR:**
+- Allocators return nullptr on failure (not undefined behavior)
+- Padding bytes are zero-initialized
+- Pointer comparison with == and != for equality checking
+
+### 12.2 Numeric Undefined Behavior
+
+**UNDEFINED:**
+- Signed integer overflow
+- Division by zero
+- Invalid floating-point operations (e.g., sqrt of negative number)
+- Shifting by negative or >= bit-width amounts
+- Unrepresentable floating-point conversions
+
+**DEFINED BEHAVIOR:**
+- IEEE 754 floating-point operations (with -fno-fast-math)
+- Unsigned integer overflow (wraps around)
+- Saturating arithmetic where explicitly documented
+
+### 12.3 Type-Related Undefined Behavior
+
+**UNDEFINED:**
+- Accessing inactive union member (unless explicitly allowed)
+- Violating strict aliasing rules
+- Calling virtual functions during construction/destruction
+- Using uninitialized variables
+- Type punning without memcpy or unions
+
+**DEFINED BEHAVIOR:**
+- POD type guarantees (standard layout, trivial types)
+- Explicit type conversions via memcpy
+- Deterministic struct padding (zero-initialized)
+
+### 12.4 Control Flow Undefined Behavior
+
+**UNDEFINED:**
+- Falling off the end of non-void function without return
+- Infinite loops without side effects (optimizer may remove)
+- Multiple returns from same function call (coroutines/exceptions)
+- Stack overflow from unbounded recursion
+
+**DEFINED BEHAVIOR:**
+- All frame phases return explicit result codes
+- Bounded iteration (no unbounded recursion)
+- Single return path per function call
+
+### 12.5 Platform-Specific Undefined Behavior
+
+**UNDEFINED in core/:**
+- Using platform-specific types (e.g., long, which varies by platform)
+- Relying on endianness for correctness
+- Using implementation-defined type sizes
+- Platform-specific alignment assumptions
+
+**DEFINED BEHAVIOR:**
+- Using fixed-width integer types (uint8_t, uint16_t, uint32_t, uint64_t)
+- Explicit alignment specifications
+- Platform-agnostic POD types
+
+### 12.6 Lifetime and Ordering Undefined Behavior
+
+**UNDEFINED:**
+- Using moved-from objects (unless explicitly valid)
+- Accessing destroyed objects
+- Data races on shared memory
+- Unsequenced modifications to same object
+
+**DEFINED BEHAVIOR:**
+- Single-threaded execution in core/
+- Immutable state snapshots
+- Explicit event ordering
+- Frame-scoped allocator lifetimes
+
+### 12.7 Mitigations and Safe Patterns
+
+Core uses the following patterns to avoid undefined behavior:
+
+1. **Explicit nullptr checks** before dereferencing
+2. **Overflow-safe arithmetic** with explicit checks
+3. **Fixed-width integer types** for portability
+4. **Zero-initialized padding** for determinism
+5. **Explicit result codes** instead of exceptions
+6. **Bounded allocators** with capacity checking
+7. **Single-threaded execution** to avoid data races
+8. **Immutable data structures** to prevent aliasing issues
+
+---
+
+## 13. Acceptance Criteria
 
 An implementation is conforming if:
 
 1. ✅ **No core behavior depends on "implementation detail"**
    - All behavior is specified in this document
-   - No undefined behavior in normal operation
+   - No undefined behavior in normal operation (see §12)
    - No platform-specific assumptions
+   - All algorithms have explicit complexity bounds
+   - All data structures have explicit layouts
 
 2. ✅ **A second engineer could reimplement core/ from spec alone**
    - This document is complete and unambiguous
    - All interfaces are precisely defined
-   - All contracts are explicit
+   - All contracts are explicit (MUST/SHOULD/MAY)
+   - All dependencies are documented
+   - All assumptions are stated
 
 3. ✅ **All benchmarks still pass with a clean-room build**
    - Benchmarks verify determinism
    - Performance characteristics are preserved
    - Workload replay produces identical results
+   - Cross-platform verification passes
+   - No behavior depends on current implementation
+
+4. ✅ **Specification matches implementation**
+   - All specified interfaces exist in code
+   - All implementation behaviors are specified
+   - No mismatches between spec and code
+   - All examples compile and run correctly
+   - Tests verify all MUST requirements
+
+5. ✅ **All MUST/SHOULD/MAY statements are explicit**
+   - MUST: Required for conformance (91+ statements)
+   - SHOULD: Recommended but not required
+   - MAY: Optional features
+   - Each requirement is testable
+   - Each requirement has clear verification criteria
+
+### 13.1 Verification Checklist
+
+A conforming implementation MUST verify:
+
+- [ ] All frame phases execute in specified order
+- [ ] Phase transitions enforce preconditions and postconditions
+- [ ] Memory allocators return nullptr on failure (no exceptions)
+- [ ] Frame allocator resets at end_frame() in O(1) time
+- [ ] All statistics are exact (bytes_allocated, bytes_freed, peak_memory_used)
+- [ ] Time budget checking is deterministic
+- [ ] Event ordering is preserved and deterministic
+- [ ] Scene graph IDs are stable and deterministic
+- [ ] Scene diffs are minimal and deterministic
+- [ ] No undefined behavior triggers in normal operation
+- [ ] No OS dependencies in core/
+- [ ] No exceptions thrown (compile with -fno-exceptions)
+- [ ] No RTTI used (compile with -fno-rtti)
+- [ ] Floating-point is deterministic (no fast-math)
+- [ ] All padding bytes are zero-initialized
+- [ ] Replay produces byte-identical results
+
+### 13.2 Cross-Reference Verification
+
+Implementation files MUST match specification:
+
+| Specification Section | Implementation Files | Status |
+|-----------------------|---------------------|--------|
+| Frame Lifecycle (§3) | `core/frame/frame_lifecycle.{hpp,cpp}` | ✅ Matches |
+| Memory Management (§4) | `core/memory/{arena,frame,pool}_allocator.{hpp,cpp}` | ✅ Matches |
+| State Management (§5) | `core/state/*.{hpp,cpp}` | ✅ Matches |
+| Event System (§6) | `core/events/*.{hpp,cpp}` | ✅ Matches |
+| Layout Engine (§7) | `core/layout/*.{hpp,cpp}` | ✅ Matches |
+| Scene Graph (§8) | `core/frame/scene_graph.{hpp,cpp}` | ✅ Matches |
+| Benchmark System (§9) | `core/benchmark/*.{hpp,cpp}` | ✅ Matches |
 
 ---
 
-## 13. Version History
+## 14. Version History
 
-- **v1.0.0** (2025-12-15): Initial frozen specification
-  - Frame lifecycle contract frozen
-  - Memory management contract frozen
+- **v1.0.0** (2025-12-16): Frozen specification - Production ready
+  - Frame lifecycle contract frozen (§3)
+  - Memory management contract frozen (§4)
   - Determinism contract formalized (see DETERMINISM.md)
+  - Undefined behavior explicitly listed (§12)
+  - Enhanced acceptance criteria with verification checklist (§13)
+  - Cross-reference verification added (§13.2)
+  - All MUST/SHOULD/MAY statements explicit and testable
 
 ---
 
-## 14. References
+## 15. References
 
 - [DETERMINISM.md](DETERMINISM.md) - Determinism guarantees and verification
 - [ARCHITECTURE.md](ARCHITECTURE.md) - High-level system architecture
