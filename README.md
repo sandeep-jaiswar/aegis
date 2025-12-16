@@ -27,6 +27,14 @@ Aegis v1.0.0 specifications are frozen and production-ready. Start here:
 - **[Architecture](docs/ARCHITECTURE.md)** - System design and principles
 - **[Core Folder Contract](docs/CORE_FOLDER_CONTRACT.md)** - Dependency boundaries
 
+## Benchmarks
+
+Reproducible performance benchmarks and browser comparisons:
+
+- **[Benchmark Corpus](benchmarks/README.md)** - Standard workload corpus and validation
+- **[Browser vs Native Comparison](benchmarks/BROWSER_NATIVE_COMPARISON.md)** - Performance comparison report
+- **[Workload Specifications](benchmarks/corpus/CORPUS_SPECIFICATION.md)** - Canonical benchmark workloads
+
 **Key Guarantees:**
 - ✅ Same inputs → byte-identical outputs (determinism)
 - ✅ 7-phase frame execution (begin → apply → update → layout → build → diff → end)
