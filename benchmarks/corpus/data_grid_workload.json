@@ -1,0 +1,127 @@
+{
+  "workload_name": "data_grid_workload",
+  "version": "1.0.0",
+  "workload_hash": "0xDADA6D1DC0DE0001",
+  "description": "Standard data grid operations benchmark - simulates typical grid cell allocations and updates",
+  "frame_count": 1000,
+  "allocations_per_frame": 50,
+  "operations_per_frame": 100,
+  "allocation_pattern": {
+    "sizes": [64, 128, 256, 512, 1024],
+    "alignment": 8,
+    "pattern": "cycling"
+  },
+  "determinism": {
+    "guaranteed_replay": true,
+    "byte_stable_output": true,
+    "hash_verification": "0xDADA6D1DC0DE0001"
+  },
+  "metadata": {
+    "created": "2024-12-16",
+    "frozen": true,
+    "category": "data_grid",
+    "complexity": "medium"
+  },
+  "events": [
+    {
+      "type": "allocate",
+      "timestamp_ns": 0,
+      "size": 64,
+      "alignment": 8,
+      "param3": 0,
+      "comment": "Frame 0 - Allocation 0"
+    },
+    {
+      "type": "allocate",
+      "timestamp_ns": 10,
+      "size": 128,
+      "alignment": 8,
+      "param3": 0,
+      "comment": "Frame 0 - Allocation 1"
+    },
+    {
+      "type": "allocate",
+      "timestamp_ns": 20,
+      "size": 256,
+      "alignment": 8,
+      "param3": 0,
+      "comment": "Frame 0 - Allocation 2"
+    },
+    {
+      "type": "allocate",
+      "timestamp_ns": 30,
+      "size": 512,
+      "alignment": 8,
+      "param3": 0,
+      "comment": "Frame 0 - Allocation 3"
+    },
+    {
+      "type": "allocate",
+      "timestamp_ns": 40,
+      "size": 1024,
+      "alignment": 8,
+      "param3": 0,
+      "comment": "Frame 0 - Allocation 4"
+    },
+    {
+      "type": "operation",
+      "timestamp_ns": 50,
+      "op_id": 1,
+      "param2": 0,
+      "param3": 0,
+      "comment": "Frame 0 - Operation 0"
+    },
+    {
+      "type": "operation",
+      "timestamp_ns": 60,
+      "op_id": 2,
+      "param2": 0,
+      "param3": 0,
+      "comment": "Frame 0 - Operation 1"
+    },
+    {
+      "type": "operation",
+      "timestamp_ns": 70,
+      "op_id": 3,
+      "param2": 0,
+      "param3": 0,
+      "comment": "Frame 0 - Operation 2"
+    },
+    {
+      "type": "timestamp",
+      "timestamp_ns": 1000,
+      "param1": 0,
+      "param2": 0,
+      "param3": 0,
+      "comment": "Frame 0 - End marker"
+    }
+  ],
+  "expected_performance": {
+    "platform": "x86_64",
+    "build_type": "Release",
+    "p50_ns": {
+      "min": 1000,
+      "max": 2000,
+      "typical": 1500
+    },
+    "p99_ns": {
+      "min": 2000,
+      "max": 4000,
+      "typical": 2500
+    },
+    "p99_9_ns": {
+      "min": 3000,
+      "max": 6000,
+      "typical": 4000
+    },
+    "variance": {
+      "max": 10000000,
+      "typical": 5000000
+    }
+  },
+  "usage_instructions": {
+    "build": "cmake -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build",
+    "run": "./build/benchmarks/run_corpus --workload data_grid_workload.json",
+    "validate": "./build/benchmarks/validate_results --workload data_grid_workload.json --baseline benchmarks/results/baseline/data_grid_baseline.json"
+  }
+}

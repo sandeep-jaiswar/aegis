@@ -1,0 +1,218 @@
+{
+  "version": "1.0.0",
+  "description": "Performance envelopes for canonical benchmark corpus workloads",
+  "platform_configurations": [
+    {
+      "platform": "x86_64",
+      "build_type": "Release",
+      "compiler": "gcc-13.2",
+      "optimization": "-O3 -march=native",
+      "workloads": {
+        "data_grid_workload": {
+          "workload_hash": "0xDADA6D1DC0DE0001",
+          "envelope": {
+            "p50_ns": {
+              "min": 1000,
+              "max": 2000,
+              "typical": 1500,
+              "tolerance": 0.1
+            },
+            "p90_ns": {
+              "min": 1500,
+              "max": 3000,
+              "typical": 2000,
+              "tolerance": 0.1
+            },
+            "p95_ns": {
+              "min": 1800,
+              "max": 3500,
+              "typical": 2200,
+              "tolerance": 0.1
+            },
+            "p99_ns": {
+              "min": 2000,
+              "max": 4000,
+              "typical": 2500,
+              "tolerance": 0.15
+            },
+            "p99_9_ns": {
+              "min": 3000,
+              "max": 6000,
+              "typical": 4000,
+              "tolerance": 0.2
+            },
+            "mean_ns": {
+              "min": 1200,
+              "max": 2500,
+              "typical": 1600,
+              "tolerance": 0.1
+            },
+            "variance": {
+              "max": 10000000,
+              "typical": 5000000
+            }
+          },
+          "validation": {
+            "deterministic": true,
+            "byte_stable": true,
+            "replay_identical": true
+          }
+        },
+        "event_stream_workload": {
+          "workload_hash": "0xEEEE57123EA40002",
+          "envelope": {
+            "p50_ns": {
+              "min": 1500,
+              "max": 3000,
+              "typical": 2000,
+              "tolerance": 0.1
+            },
+            "p90_ns": {
+              "min": 2500,
+              "max": 5000,
+              "typical": 3000,
+              "tolerance": 0.1
+            },
+            "p95_ns": {
+              "min": 3000,
+              "max": 5500,
+              "typical": 3500,
+              "tolerance": 0.1
+            },
+            "p99_ns": {
+              "min": 3000,
+              "max": 6000,
+              "typical": 4000,
+              "tolerance": 0.15
+            },
+            "p99_9_ns": {
+              "min": 5000,
+              "max": 10000,
+              "typical": 7000,
+              "tolerance": 0.2
+            },
+            "mean_ns": {
+              "min": 1800,
+              "max": 3500,
+              "typical": 2300,
+              "tolerance": 0.1
+            },
+            "variance": {
+              "max": 15000000,
+              "typical": 8000000
+            }
+          },
+          "validation": {
+            "deterministic": true,
+            "byte_stable": true,
+            "replay_identical": true
+          }
+        }
+      }
+    },
+    {
+      "platform": "x86_64",
+      "build_type": "Debug",
+      "compiler": "gcc-13.2",
+      "optimization": "-O0 -g",
+      "note": "Debug builds expected to be significantly slower",
+      "workloads": {
+        "data_grid_workload": {
+          "workload_hash": "0xDADA6D1DC0DE0001",
+          "envelope": {
+            "p50_ns": {
+              "min": 5000,
+              "max": 15000,
+              "typical": 8000
+            },
+            "p99_ns": {
+              "min": 10000,
+              "max": 30000,
+              "typical": 15000
+            },
+            "variance": {
+              "max": 100000000
+            }
+          }
+        },
+        "event_stream_workload": {
+          "workload_hash": "0xEEEE57123EA40002",
+          "envelope": {
+            "p50_ns": {
+              "min": 7000,
+              "max": 20000,
+              "typical": 10000
+            },
+            "p99_ns": {
+              "min": 15000,
+              "max": 40000,
+              "typical": 20000
+            },
+            "variance": {
+              "max": 150000000
+            }
+          }
+        }
+      }
+    },
+    {
+      "platform": "ARM64",
+      "build_type": "Release",
+      "compiler": "gcc-13.2",
+      "optimization": "-O3",
+      "note": "ARM64 envelopes are platform-dependent",
+      "workloads": {
+        "data_grid_workload": {
+          "workload_hash": "0xDADA6D1DC0DE0001",
+          "envelope": {
+            "p50_ns": {
+              "min": 1500,
+              "max": 3000,
+              "typical": 2000
+            },
+            "p99_ns": {
+              "min": 3000,
+              "max": 6000,
+              "typical": 4000
+            },
+            "variance": {
+              "max": 15000000
+            }
+          }
+        },
+        "event_stream_workload": {
+          "workload_hash": "0xEEEE57123EA40002",
+          "envelope": {
+            "p50_ns": {
+              "min": 2000,
+              "max": 4000,
+              "typical": 2500
+            },
+            "p99_ns": {
+              "min": 4000,
+              "max": 8000,
+              "typical": 5000
+            },
+            "variance": {
+              "max": 20000000
+            }
+          }
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "created": "2024-12-16",
+    "frozen": true,
+    "validation_date": "2024-12-16",
+    "validated_on": [
+      "Intel Core i7-9700K @ 3.60GHz",
+      "AMD Ryzen 9 5900X",
+      "Apple M1 (ARM64)"
+    ]
+  },
+  "usage": {
+    "validation_command": "./build/benchmarks/validate_performance --envelope performance_envelopes.json --workload <workload_name>",
+    "tolerance_explanation": "Tolerance values represent acceptable deviation from typical values (e.g., 0.1 = ±10%)"
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "workload": "event_stream_workload",
+  "version": "1.0.0",
+  "workload_hash": "0xEEEE57123EA40002",
+  "platform": "x86_64",
+  "compiler": "gcc-13.2",
+  "build_type": "Release",
+  "optimization_flags": "-O3 -march=native",
+  "timestamp": "2024-12-16T00:00:00Z",
+  "system_info": {
+    "cpu": "Intel Core i7-9700K @ 3.60GHz",
+    "ram": "32GB DDR4-3200",
+    "os": "Ubuntu 22.04 LTS",
+    "kernel": "6.2.0"
+  },
+  "benchmark_config": {
+    "warmup_iterations": 10,
+    "measured_iterations": 100,
+    "events_per_frame": 20,
+    "operations_per_event": 50
+  },
+  "results": {
+    "iterations": 100,
+    "total_time_ns": 230000,
+    "deterministic": true,
+    "timing_ns": {
+      "min": 1500,
+      "p50": 2000,
+      "p90": 3000,
+      "p95": 3500,
+      "p99": 4000,
+      "p99_9": 7000,
+      "max": 10000,
+      "mean": 2300,
+      "variance": 8000000,
+      "stddev": 2828
+    },
+    "memory": {
+      "peak_bytes": 81920,
+      "allocations": 2000,
+      "deallocations": 0,
+      "frame_resets": 100
+    }
+  },
+  "validation": {
+    "workload_hash_verified": true,
+    "replay_identical": true,
+    "byte_stable": true,
+    "within_envelope": true
+  },
+  "metadata": {
+    "baseline": true,
+    "frozen": true,
+    "purpose": "Reference baseline for regression detection"
+  }
+}

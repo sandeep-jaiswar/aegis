@@ -176,6 +176,67 @@ This document provides a comprehensive index of all Aegis specifications, organi
 
 ---
 
+### 6. Benchmark Corpus Specification
+**Document:** [benchmarks/corpus/CORPUS_SPECIFICATION.md](../benchmarks/corpus/CORPUS_SPECIFICATION.md)  
+**Ticket:** BEN-A001  
+**Status:** ✅ Frozen
+
+**Covers:**
+- Canonical workload definitions
+- Data grid workload specification
+- Event stream workload specification
+- Performance envelope boundaries
+- Deterministic replay guarantees
+- Byte-stable output verification
+- Third-party usability requirements
+
+**Key Sections:**
+- Workload Definitions - Standard benchmark workloads
+- Performance Envelopes - Expected performance bounds
+- Acceptance Criteria - Replay, byte-stability, usability
+- Workload File Format - JSON specification
+- Validation Process - Pre and post-freeze validation
+
+**Acceptance Criteria:**
+- ✅ Workloads replay identically
+- ✅ Outputs byte-stable
+- ✅ Benchmarks usable by third parties
+- ✅ Performance within expected envelopes
+
+---
+
+### 7. Browser & Native Comparison Report
+**Document:** [benchmarks/BROWSER_NATIVE_COMPARISON.md](../benchmarks/BROWSER_NATIVE_COMPARISON.md)  
+**Ticket:** BEN-A002  
+**Status:** ✅ Published
+
+**Covers:**
+- Reproducible performance comparison methodology
+- Raw measurements from multiple platforms
+- Variance analysis (20,000x improvement)
+- Performance wins and losses documentation
+- Third-party reproducibility instructions
+- No cherry-picked metrics policy
+
+**Key Findings:**
+- Variance Improvement: 10,000x - 24,000x lower variance
+- P99 Latency: 100x - 150x faster
+- Predictability: Sub-microsecond vs millisecond-scale variation
+- Determinism: Byte-stable outputs with guaranteed replay
+
+**Platforms Tested:**
+- Aegis Native (x86_64, GCC 13.2, Release)
+- Chrome 120.0 (x86_64)
+- Firefox 121.0 (x86_64)
+- Safari 17.0 (ARM64, Apple M1)
+
+**Acceptance Criteria:**
+- ✅ Results reproducible by others
+- ✅ Wins and losses documented
+- ✅ No cherry-picked metrics
+
+---
+
 ## Supporting Documents
 
 ### Architecture Documents
@@ -283,6 +344,12 @@ This document provides a comprehensive index of all Aegis specifications, organi
 - **Format:** core/module/README.md §4 (Capabilities Section)
 - **Implementation:** `core/module/module_format.hpp` (capability_flags)
 
+#### Performance Benchmarking
+- **Primary:** benchmarks/corpus/CORPUS_SPECIFICATION.md (Workload Definitions)
+- **Comparison:** benchmarks/BROWSER_NATIVE_COMPARISON.md (Browser vs Native)
+- **Infrastructure:** SPEC_CORE_V1.md §9 (Benchmark System)
+- **Implementation:** `core/benchmark/*.{hpp,cpp}`
+
 ---
 
 ## Requirement Mapping
@@ -348,6 +415,30 @@ This document provides a comprehensive index of all Aegis specifications, organi
 | Capability enforcement testable | CAPABILITY_MODEL.md | Testability | ✅ Complete |
 | Capability enforcement replayable | CAPABILITY_MODEL.md | Replay Testing | ✅ Complete |
 
+### BEN-A001: Canonical Workload Set
+
+| Requirement | Document | Section | Status |
+|-------------|----------|---------|--------|
+| Frozen standard workload corpus | benchmarks/corpus/CORPUS_SPECIFICATION.md | Workload Definitions | ✅ Complete |
+| Data grid workload | benchmarks/corpus/data_grid_workload.json | - | ✅ Complete |
+| Event stream workload | benchmarks/corpus/event_stream_workload.json | - | ✅ Complete |
+| Performance envelopes | benchmarks/corpus/performance_envelopes.json | - | ✅ Complete |
+| Workloads replay identically | benchmarks/corpus/CORPUS_SPECIFICATION.md | Acceptance Criteria | ✅ Complete |
+| Outputs byte-stable | benchmarks/corpus/CORPUS_SPECIFICATION.md | Acceptance Criteria | ✅ Complete |
+| Benchmarks usable by third parties | benchmarks/corpus/CORPUS_SPECIFICATION.md | Third-Party Usage | ✅ Complete |
+
+### BEN-A002: Browser & Native Comparison Report
+
+| Requirement | Document | Section | Status |
+|-------------|----------|---------|--------|
+| Reproducible methodology | benchmarks/BROWSER_NATIVE_COMPARISON.md | Methodology | ✅ Complete |
+| Raw measurements | benchmarks/BROWSER_NATIVE_COMPARISON.md | Raw Measurements | ✅ Complete |
+| Variance analysis | benchmarks/BROWSER_NATIVE_COMPARISON.md | Variance Analysis | ✅ Complete |
+| Performance wins documented | benchmarks/BROWSER_NATIVE_COMPARISON.md | Wins and Losses | ✅ Complete |
+| Performance losses explained | benchmarks/BROWSER_NATIVE_COMPARISON.md | Browser Losses | ✅ Complete |
+| Results reproducible by others | benchmarks/BROWSER_NATIVE_COMPARISON.md | Reproducibility | ✅ Complete |
+| No cherry-picked metrics | benchmarks/BROWSER_NATIVE_COMPARISON.md | All Metrics Reported | ✅ Complete |
+
 ---
 
 ## Implementation Verification
@@ -377,6 +468,8 @@ This document provides a comprehensive index of all Aegis specifications, organi
 5. Check [MEMORY_SYSTEM.md](MEMORY_SYSTEM.md) for memory management
 6. Review [core/module/README.md](../core/module/README.md) for module distribution
 7. Study [CAPABILITY_MODEL.md](CAPABILITY_MODEL.md) for security model
+8. See [benchmarks/README.md](../benchmarks/README.md) for performance benchmarks
+9. Review [benchmarks/BROWSER_NATIVE_COMPARISON.md](../benchmarks/BROWSER_NATIVE_COMPARISON.md) for performance results
 
 ### For Implementers
 
@@ -409,10 +502,13 @@ All specifications are version 1.0.0 and frozen as of 2025-12-16.
 | MEMORY_SYSTEM.md | 1.0.0 | Frozen | 2025-12-16 |
 | core/module/README.md | 1.0.0 | Frozen | 2025-12-16 |
 | CAPABILITY_MODEL.md | 1.0.0 | Frozen | 2025-12-16 |
+| benchmarks/corpus/CORPUS_SPECIFICATION.md | 1.0.0 | Frozen | 2025-12-16 |
+| benchmarks/BROWSER_NATIVE_COMPARISON.md | 1.0.0 | Published | 2025-12-16 |
 | ARCHITECTURE.md | 1.0.0 | Stable | - |
 | CORE_FOLDER_CONTRACT.md | 1.0.0 | Stable | - |
 
 **Frozen** means the specification is production-ready and changes require major version bump.  
+**Published** means the report is finalized and publicly available.  
 **Stable** means the document is mature but may have minor clarifications.
 
 ---
