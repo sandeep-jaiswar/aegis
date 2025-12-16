@@ -102,8 +102,10 @@ function App() {
     await new Promise(resolve => setTimeout(resolve, 100));
 
     // Measured phase
+    // Note: performance.now() has microsecond precision in most browsers,
+    // so nanosecond values are approximations for comparison purposes
     for (let i = 0; i < CONFIG.measuredIterations; i++) {
-      const start = performance.now() * 1000000; // Convert to nanoseconds
+      const start = performance.now() * 1000000; // Convert to nanoseconds (microsecond precision)
       workload.executeFrame();
       const end = performance.now() * 1000000;
       timings.push(end - start);

@@ -6,6 +6,7 @@
 #include <QDateTime>
 #include <QApplication>
 #include <QElapsedTimer>
+#include <QThread>
 #include <chrono>
 
 namespace aegis::benchmark {
@@ -203,3 +204,5 @@ void BenchmarkWindow::export_results() {
 }
 
 } // namespace aegis::benchmark
+
+#include "benchmark_window.moc"
