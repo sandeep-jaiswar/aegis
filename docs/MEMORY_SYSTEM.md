@@ -636,6 +636,10 @@ class allocation_tracker {
     
     std::vector<allocation_record> allocations;
     
+    // FNV-1a hash constants (see DETERMINISM.md §9.2)
+    static constexpr uint64_t FNV_OFFSET = 14695981039346656037ULL;
+    static constexpr uint64_t FNV_PRIME = 1099511628211ULL;
+    
 public:
     void record_allocation(uint64_t timestamp, size_t size, 
                           size_t alignment, 
@@ -643,7 +647,7 @@ public:
         allocations.push_back({timestamp, size, alignment, file, line});
     }
     
-    // Compute deterministic hash
+    // Compute deterministic hash using FNV-1a
     uint64_t compute_hash() const {
         uint64_t hash = FNV_OFFSET;
         for (const auto& record : allocations) {
