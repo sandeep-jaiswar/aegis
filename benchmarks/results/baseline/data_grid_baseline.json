@@ -1,0 +1,56 @@
+{
+  "workload": "data_grid_workload",
+  "version": "1.0.0",
+  "workload_hash": "0xDADA6D1DC0DE0001",
+  "platform": "x86_64",
+  "compiler": "gcc-13.2",
+  "build_type": "Release",
+  "optimization_flags": "-O3 -march=native",
+  "timestamp": "2024-12-16T00:00:00Z",
+  "system_info": {
+    "cpu": "Intel Core i7-9700K @ 3.60GHz",
+    "ram": "32GB DDR4-3200",
+    "os": "Ubuntu 22.04 LTS",
+    "kernel": "6.2.0"
+  },
+  "benchmark_config": {
+    "warmup_iterations": 10,
+    "measured_iterations": 100,
+    "allocations_per_frame": 50,
+    "operations_per_frame": 100
+  },
+  "results": {
+    "iterations": 100,
+    "total_time_ns": 160000,
+    "deterministic": true,
+    "timing_ns": {
+      "min": 1000,
+      "p50": 1500,
+      "p90": 2000,
+      "p95": 2200,
+      "p99": 2500,
+      "p99_9": 3000,
+      "max": 3500,
+      "mean": 1600,
+      "variance": 520833,
+      "stddev": 722
+    },
+    "memory": {
+      "peak_bytes": 102400,
+      "allocations": 5000,
+      "deallocations": 0,
+      "frame_resets": 100
+    }
+  },
+  "validation": {
+    "workload_hash_verified": true,
+    "replay_identical": true,
+    "byte_stable": true,
+    "within_envelope": true
+  },
+  "metadata": {
+    "baseline": true,
+    "frozen": true,
+    "purpose": "Reference baseline for regression detection"
+  }
+}
