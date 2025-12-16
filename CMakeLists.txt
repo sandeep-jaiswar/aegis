@@ -76,7 +76,9 @@ add_subdirectory(runtime)
 # Build shell (minimal viewer-runtime, NOT a browser)
 add_subdirectory(shell)
 
-# App, tools, tests can be added later
+# Build CLI tool (developer workflow)
+add_subdirectory(tools/cli)
+
+# App, tests can be added later
 # add_subdirectory(app)
-# add_subdirectory(tools)
 # add_subdirectory(tests)
