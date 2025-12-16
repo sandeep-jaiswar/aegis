@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aegis APP-001 Canvas Benchmark</title>
+    <style>
+        body {
+            font-family: 'Consolas', 'Courier New', monospace;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            margin: 0;
+        }
+        
+        .header {
+            background: #2d2d30;
+            border: 2px solid #3e3e42;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        
+        h1 {
+            margin: 0 0 10px 0;
+            color: #569cd6;
+        }
+        
+        .subtitle {
+            color: #9cdcfe;
+            font-size: 14px;
+        }
+        
+        .warning {
+            background: #3e3e42;
+            border-left: 4px solid #ce9178;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        button {
+            background: #0e639c;
+            color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        button:hover:not(:disabled) {
+            background: #1177bb;
+        }
+        
+        button:disabled {
+            background: #3e3e42;
+            cursor: not-allowed;
+        }
+        
+        .results {
+            background: #2d2d30;
+            border: 2px solid #3e3e42;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .results h2 {
+            margin-top: 0;
+            color: #569cd6;
+        }
+        
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #3e3e42;
+        }
+        
+        .metric:last-child {
+            border-bottom: none;
+        }
+        
+        .metric-name {
+            color: #9cdcfe;
+        }
+        
+        .metric-value {
+            color: #b5cea8;
+            font-weight: bold;
+        }
+        
+        .status {
+            color: #608b4e;
+            font-style: italic;
+        }
+        
+        .workload-area {
+            background: #2d2d30;
+            border: 2px solid #3e3e42;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .workload-area h2 {
+            margin-top: 0;
+            color: #569cd6;
+        }
+        
+        canvas {
+            display: block;
+            background: #1e1e1e;
+            border-radius: 4px;
+        }
+        
+        .info {
+            background: #2d2d30;
+            border: 2px solid #3e3e42;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        
+        .info h2 {
+            margin-top: 0;
+            color: #569cd6;
+        }
+        
+        .info p {
+            line-height: 1.6;
+        }
+        
+        .info ul {
+            line-height: 1.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎨 APP-001 Canvas Benchmark</h1>
+        <div class="subtitle">External Falsification - Chromium + Canvas</div>
+    </div>
+
+    <div class="warning">
+        <strong>⚠️ Note:</strong> This benchmark implements APP-001 using HTML5 Canvas to validate 
+        Aegis's variance claims. For accurate results, close other tabs and applications.
+    </div>
+
+    <div class="controls">
+        <button id="startBtn" onclick="runBenchmark()">Start Benchmark</button>
+        <button id="exportBtn" onclick="exportResults()" disabled>Export Results</button>
+    </div>
+
+    <div class="results">
+        <h2>Canvas Implementation Results</h2>
+        <div id="resultsDiv">
+            <div class="status">Click "Start Benchmark" to begin...</div>
+        </div>
+    </div>
+
+    <div class="workload-area">
+        <h2>Frame Time Visualization</h2>
+        <canvas id="visualizationCanvas" width="800" height="400"></canvas>
+    </div>
+
+    <div class="workload-area">
+        <h2>Rendering Canvas</h2>
+        <canvas id="workloadCanvas" width="800" height="400"></canvas>
+    </div>
+
+    <div class="info">
+        <h2>About This Benchmark</h2>
+        <p>
+            This implementation uses <strong>HTML5 Canvas</strong> for direct 2D rendering 
+            to execute the APP-001 workload. Canvas adds overhead through:
+        </p>
+        <ul>
+            <li>Canvas API calls and state management</li>
+            <li>GPU rasterization and compositing</li>
+            <li>Browser rendering pipeline integration</li>
+            <li>Garbage collection from temporary objects</li>
+            <li>JavaScript event loop scheduling</li>
+        </ul>
+        <p>
+            Compare these results with the Aegis baseline to see the impact of browser 
+            rendering overhead on variance and predictability.
+        </p>
+    </div>
+
+    <script src="canvas_benchmark.js"></script>
+</body>
+</html>

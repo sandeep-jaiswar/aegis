@@ -1,0 +1,11 @@
+body {
+  margin: 0;
+  font-family: 'Consolas', 'Courier New', monospace;
+  background: #1e1e1e;
+  color: #d4d4d4;
+  padding: 20px;
+}
+
+* {
+  box-sizing: border-box;
+}
