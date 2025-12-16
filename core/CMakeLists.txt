@@ -8,8 +8,9 @@ file(GLOB_RECURSE CORE_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
 )
 
-# Exclude demo files from library
+# Exclude demo and test files from library
 list(FILTER CORE_SOURCES EXCLUDE REGEX ".*demo.*\\.cpp$")
+list(FILTER CORE_SOURCES EXCLUDE REGEX ".*test.*\\.cpp$")
 
 file(GLOB_RECURSE CORE_HEADERS
     "${CMAKE_CURRENT_SOURCE_DIR}/*.hpp"

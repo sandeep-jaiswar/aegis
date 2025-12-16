@@ -114,6 +114,68 @@ This document provides a comprehensive index of all Aegis specifications, organi
 
 ---
 
+### 4. Module Format Specification (.aegis Binary Format)
+**Document:** [core/module/README.md](../core/module/README.md)  
+**Ticket:** MOD-001  
+**Status:** ✅ Frozen
+
+**Covers:**
+- Binary layout and file structure
+- Versioning rules and compatibility
+- Integrity hashing (FNV-1a)
+- Asset embedding
+- Section types (metadata, code, assets, capabilities, signature)
+- Deterministic module generation
+
+**Key Sections:**
+- Module Header - Magic number, version, hash, capabilities
+- Section Headers - Offset, size, hash for each section
+- Metadata Section - Name, version, author, description
+- Code Section - Compiled code/bytecode
+- Assets Section - Embedded resources with metadata
+- Versioning Rules - Semantic versioning and compatibility matrix
+- Integrity Verification - Hash calculation and verification
+
+**Acceptance Criteria:**
+- ✅ No runtime parsing of text
+- ✅ Module hash fully defines behavior
+- ✅ Old modules replay correctly on newer runtimes (within version contract)
+- ✅ Binary format with direct memory mapping
+- ✅ Deterministic module generation (same inputs → same output)
+
+---
+
+### 5. Capability Model Specification
+**Document:** [CAPABILITY_MODEL.md](CAPABILITY_MODEL.md)  
+**Ticket:** MOD-002  
+**Status:** ✅ Frozen
+
+**Covers:**
+- Capability declaration format
+- Enforcement points in runtime
+- Failure behavior when capabilities missing
+- Comparison to origin-based security
+- No ambient authority principle
+- Deterministic capability checking
+
+**Key Sections:**
+- Core Principles - No ambient authority, explicit declaration, deterministic failure
+- Capability Grammar - Bitfield syntax and checking
+- Enforcement Points - Load-time and runtime checks
+- Failure Behavior - Deterministic error codes
+- Comparison to Origin-Based Security - Advantages and trade-offs
+- Capability Testability - Test matrix and replay guarantees
+- Security Considerations - Threat model and best practices
+
+**Acceptance Criteria:**
+- ✅ No ambient authority exists
+- ✅ Missing capability → deterministic failure
+- ✅ Capability enforcement testable and replayable
+- ✅ Zero default permissions
+- ✅ Load-time enforcement with clear error codes
+
+---
+
 ## Supporting Documents
 
 ### Architecture Documents
@@ -210,6 +272,17 @@ This document provides a comprehensive index of all Aegis specifications, organi
 - **Architecture:** ARCHITECTURE.md §3.2 (Rendering Engine)
 - **Implementation:** `core/frame/gpu_command*.{hpp,cpp}`
 
+#### Module Distribution
+- **Primary:** core/module/README.md (Module Format)
+- **Security:** CAPABILITY_MODEL.md (Capability System)
+- **Determinism:** DETERMINISM.md §2 (Core Invariant)
+- **Implementation:** `core/module/{module_format,module_builder,module_loader}.hpp`
+
+#### Capability-Based Security
+- **Primary:** CAPABILITY_MODEL.md (all sections)
+- **Format:** core/module/README.md §4 (Capabilities Section)
+- **Implementation:** `core/module/module_format.hpp` (capability_flags)
+
 ---
 
 ## Requirement Mapping
@@ -249,6 +322,32 @@ This document provides a comprehensive index of all Aegis specifications, organi
 | All allocators have documented invariants | SPEC_CORE_V1.md | §4 | ✅ Complete |
 | Memory behavior reproducible under replay | MEMORY_SYSTEM.md | Reproducibility | ✅ Complete |
 
+### MOD-001: .aegis Binary Format Specification
+
+| Requirement | Document | Section | Status |
+|-------------|----------|---------|--------|
+| Binary layout | core/module/README.md | File Structure | ✅ Complete |
+| Versioning | core/module/README.md | Versioning Rules | ✅ Complete |
+| Integrity hashing | core/module/README.md | Integrity & Signatures | ✅ Complete |
+| Capability declarations | core/module/README.md | Capability System | ✅ Complete |
+| Asset embedding | core/module/README.md | Assets Section | ✅ Complete |
+| No runtime parsing of text | core/module/README.md | Design Principles | ✅ Complete |
+| Module hash fully defines behavior | core/module/README.md | Hash Calculation | ✅ Complete |
+| Old modules replay on newer runtimes | core/module/README.md | Compatibility Matrix | ✅ Complete |
+
+### MOD-002: Capability Model Specification
+
+| Requirement | Document | Section | Status |
+|-------------|----------|---------|--------|
+| Capability declaration format | CAPABILITY_MODEL.md | Capability Grammar | ✅ Complete |
+| Enforcement points | CAPABILITY_MODEL.md | Enforcement Points | ✅ Complete |
+| Failure behavior | CAPABILITY_MODEL.md | Failure Behavior | ✅ Complete |
+| Comparison to origin-based security | CAPABILITY_MODEL.md | Comparison | ✅ Complete |
+| No ambient authority exists | CAPABILITY_MODEL.md | Core Principles §1 | ✅ Complete |
+| Missing capability → deterministic failure | CAPABILITY_MODEL.md | Core Principles §3 | ✅ Complete |
+| Capability enforcement testable | CAPABILITY_MODEL.md | Testability | ✅ Complete |
+| Capability enforcement replayable | CAPABILITY_MODEL.md | Replay Testing | ✅ Complete |
+
 ---
 
 ## Implementation Verification
@@ -263,6 +362,7 @@ This document provides a comprehensive index of all Aegis specifications, organi
 | `core/layout/` | SPEC_CORE_V1.md §7 | `*.{hpp,cpp}` | ✅ |
 | `core/frame/` | SPEC_CORE_V1.md §3, §8 | `frame_lifecycle.{hpp,cpp}`, `scene_graph.{hpp,cpp}` | ✅ |
 | `core/benchmark/` | SPEC_CORE_V1.md §9 | `benchmark*.{hpp,cpp}` | ✅ |
+| `core/module/` | core/module/README.md, CAPABILITY_MODEL.md | `module_{format,builder,loader}.hpp`, `demo_module.cpp` | ✅ |
 
 ---
 
@@ -275,14 +375,17 @@ This document provides a comprehensive index of all Aegis specifications, organi
 3. Study [SPEC_CORE_V1.md](SPEC_CORE_V1.md) for detailed contracts
 4. Reference [DETERMINISM.md](DETERMINISM.md) when implementing features
 5. Check [MEMORY_SYSTEM.md](MEMORY_SYSTEM.md) for memory management
+6. Review [core/module/README.md](../core/module/README.md) for module distribution
+7. Study [CAPABILITY_MODEL.md](CAPABILITY_MODEL.md) for security model
 
 ### For Implementers
 
 1. Start with the relevant section in [SPEC_CORE_V1.md](SPEC_CORE_V1.md)
 2. Cross-reference with [DETERMINISM.md](DETERMINISM.md) for determinism requirements
 3. Check [MEMORY_SYSTEM.md](MEMORY_SYSTEM.md) if dealing with allocations
-4. Verify against acceptance criteria in each document
-5. Run verification checklist from §13.1 in SPEC_CORE_V1.md
+4. Review [CAPABILITY_MODEL.md](CAPABILITY_MODEL.md) for security requirements
+5. Verify against acceptance criteria in each document
+6. Run verification checklist from §13.1 in SPEC_CORE_V1.md
 
 ### For Reviewers
 
@@ -290,7 +393,8 @@ This document provides a comprehensive index of all Aegis specifications, organi
 2. Verify determinism requirements from [DETERMINISM.md](DETERMINISM.md)
 3. Ensure no forbidden patterns from [MEMORY_SYSTEM.md](MEMORY_SYSTEM.md)
 4. Verify no violations of [CORE_FOLDER_CONTRACT.md](CORE_FOLDER_CONTRACT.md)
-5. Check all MUST requirements are satisfied
+5. Check capability declarations in [CAPABILITY_MODEL.md](CAPABILITY_MODEL.md)
+6. Check all MUST requirements are satisfied
 
 ---
 
@@ -303,6 +407,8 @@ All specifications are version 1.0.0 and frozen as of 2025-12-16.
 | SPEC_CORE_V1.md | 1.0.0 | Frozen | 2025-12-16 |
 | DETERMINISM.md | 1.0.0 | Frozen | 2025-12-16 |
 | MEMORY_SYSTEM.md | 1.0.0 | Frozen | 2025-12-16 |
+| core/module/README.md | 1.0.0 | Frozen | 2025-12-16 |
+| CAPABILITY_MODEL.md | 1.0.0 | Frozen | 2025-12-16 |
 | ARCHITECTURE.md | 1.0.0 | Stable | - |
 | CORE_FOLDER_CONTRACT.md | 1.0.0 | Stable | - |
 
@@ -327,6 +433,10 @@ All specifications are version 1.0.0 and frozen as of 2025-12-16.
 - **Scene Diff**: Minimal change set between two scene graphs
 - **Workload**: Recorded event sequence for replay
 - **Conforming Implementation**: Implementation satisfying all MUST requirements
+- **Module**: Distributable binary package (.aegis file)
+- **Capability**: Permission to use a specific runtime feature
+- **Ambient Authority**: Implicit access without explicit permission (forbidden in Aegis)
+- **Load-time Enforcement**: Security checks performed when loading a module
 
 ### Abbreviations
 
@@ -338,6 +448,8 @@ All specifications are version 1.0.0 and frozen as of 2025-12-16.
 - **FNV-1a**: Fowler-Noll-Vo hash algorithm
 - **O(1)**: Constant time complexity
 - **O(n)**: Linear time complexity
+- **CORS**: Cross-Origin Resource Sharing (browser security)
+- **CSP**: Content Security Policy (browser security)
 
 ---
 

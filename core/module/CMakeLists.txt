@@ -14,3 +14,15 @@ target_compile_options(demo_module PRIVATE
 
 # Include directories
 target_include_directories(demo_module PRIVATE ${CMAKE_SOURCE_DIR})
+
+# Add capability test executable
+add_executable(capability_test capability_test.cpp)
+
+# Set compile options
+target_compile_options(capability_test PRIVATE
+    $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall -Wextra -Wpedantic>
+    $<$<CXX_COMPILER_ID:MSVC>:/W4>
+)
+
+# Include directories
+target_include_directories(capability_test PRIVATE ${CMAKE_SOURCE_DIR})
