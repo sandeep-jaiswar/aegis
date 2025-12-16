@@ -1,6 +1,10 @@
 // Aegis CLI - Developer workflow tool
 // Provides: build, run, replay, and bench commands
 // Design principle: No magic, inspectable artifacts, explicit operations
+//
+// Note: This tool intentionally uses system() calls to wrap existing tools.
+// This makes operations explicit and transparent, which aligns with the
+// "no magic" principle. The CLI is a thin wrapper, not a reimplementation.
 
 #include <cstdio>
 #include <cstdlib>
