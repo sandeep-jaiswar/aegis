@@ -1,6 +1,10 @@
 # Benchmark result files
-*.json
+*_results.json
 aegis_results.txt
+
+# But keep package.json files
+!package.json
+!**/package.json
 
 # React
 react/node_modules/
