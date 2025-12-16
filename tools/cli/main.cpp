@@ -13,6 +13,11 @@
 // Command enumeration
 enum class command_type { none, build, run, replay, bench, help, version };
 
+// Benchmark discovery command (used in multiple places)
+static constexpr const char* BENCHMARK_FIND_CMD =
+    "find build/core -maxdepth 1 -type f -executable \\( -name '*benchmark*' -o -name '*demo' \\) "
+    "2>/dev/null";
+
 // CLI configuration
 struct cli_config {
     command_type command{command_type::none};
@@ -315,9 +320,12 @@ static int execute_bench(const cli_config& config) {
 
     // List available benchmarks
     printf("\nAvailable benchmarks:\n");
-    int ret = system(
-        "find build/core -maxdepth 1 -type f -executable \\( -name '*benchmark*' -o -name '*demo' \\) 2>/dev/null | while read -r bench; do echo "
-        "\"  - $(basename \"$bench\")\"; done || echo '  (No benchmarks found - build first)'");
+    char list_cmd[512];
+    snprintf(list_cmd, sizeof(list_cmd),
+             "%s | while read -r bench; do echo \"  - $(basename \"$bench\")\"; done || echo '  (No "
+             "benchmarks found - build first)'",
+             BENCHMARK_FIND_CMD);
+    int ret = system(list_cmd);
     (void)ret; // Intentionally ignore - this is informational output only
 
     // If specific benchmark requested, run it
@@ -370,9 +378,11 @@ static int execute_bench(const cli_config& config) {
 
     // Run all benchmarks
     printf("\nRunning all benchmarks...\n");
-    const char* bench_cmd =
-        "find build/core -maxdepth 1 -type f -executable \\( -name '*benchmark*' -o -name '*demo' \\) 2>/dev/null | while read -r bench; do echo "
-        "\"\\n=== Running $(basename \"$bench\") ===\"; \"$bench\" 2>&1; done";
+    char bench_cmd[512];
+    snprintf(bench_cmd, sizeof(bench_cmd),
+             "%s | while read -r bench; do echo \"\\n=== Running $(basename \"$bench\") ===\"; "
+             "\"$bench\" 2>&1; done",
+             BENCHMARK_FIND_CMD);
 
     if (config.verbose) {
         printf("Command: %s\n", bench_cmd);
