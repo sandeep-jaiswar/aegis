@@ -71,3 +71,6 @@ if(BUILD_PLATFORM_DEMO)
         )
     endif()
 endif()
+
+# Conformance test suite (REF-002)
+add_subdirectory(conformance_tests)
